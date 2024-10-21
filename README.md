@@ -11,7 +11,7 @@ At the moment, we release three demo notebooks with examples of our method, the 
 - [`2.BO_demo.ipynb`](2.BO_demo.ipynb): Bayesian optimization demo.
 - [`3.SBI_demo.ipynb`](3.SBI_demo.ipynb): Simulation-based inference demo.
 
-Each notebook demonstrates specific application of ACE. Simply open the notebooks in Jupyter or in GitHub to visualize the demos.
+Each notebook demonstrates a specific application of ACE. Simply open the notebooks in Jupyter or in GitHub to visualize the demos.
 
 Code to run the demos will be added soon, and full code for this project will be made available later.
 
