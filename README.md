@@ -3,6 +3,15 @@
 This repository will provide the implementation and code used in the preprint article *Amortized Probabilistic Conditioning for Optimization, Simulation and Inference* (Chang et al., 2024).
 The full paper can be found on arXiv at: [https://arxiv.org/abs/2410.15320](https://arxiv.org/abs/2410.15320).
 
+## Installation with Anaconda
+
+To install the required dependencies, run:
+
+```bash
+conda install python=3.9.19 pytorch=2.2.0 torchvision=0.17.0 torchaudio=2.2.0 -c pytorch
+pip install -e .
+```
+
 ## Demos
 
 At the moment, we release three demo notebooks with examples of our method, the Amortized Conditioning Engine (ACE).
