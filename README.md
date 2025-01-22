@@ -20,7 +20,7 @@ At the moment, we release three demo notebooks with examples of our method, the 
 
 Each notebook demonstrates a specific application of ACE. Simply open the notebooks in Jupyter or in GitHub to visualize the demos.
 
-Code to run the demos will be added soon, and full code for this project will be made available later.
+Full code for this project will be made available later.
 
 ## Citation
 If you find this work valuable for your research, please consider citing our paper:
