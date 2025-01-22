@@ -1,0 +1,89 @@
+seed: 2024
+batch_size: 64
+eval_batch_size: 200
+eval_split: 10
+n_extra_point_eval: 10
+num_steps: 500000
+print_freq: 500
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.0005
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: ${num_steps}
+checkpoint: true
+ckpt_save_freq: 10000
+wandb:
+  group: ACE64_500k_run
+  project: amoritize-everything
+  use_wandb: true
+  run_name: ${wandb.group}-seed=${seed}-data=${dataset.name}-head=${target_head.name}-embed=${embedder.name}-encod=${encoder.name}
+  tags:
+  - dataset=${dataset.name}
+  - seed=${seed}
+  - group=${wandb.group}
+embedder:
+  _target_: src.model.embedder.EmbedderMarker
+  name: mark_emb_skip
+  dim_hid: 64
+  dim_out: ${encoder.d_model}
+  emb_depth: 4
+  pos_emb_init: true
+  use_skipcon_mlp: true
+encoder:
+  _target_: src.model.encoder.TNPDEncoder
+  name: tnpd_dm256df128l6h16
+  d_model: 256
+  dim_feedforward: 128
+  n_head: 16
+  dropout: 0.0
+  num_layers: 6
+target_head:
+  _target_: src.model.target_head.MixtureGaussian
+  name: mixture_gaussian
+  dim_y: 1
+  d_model: ${encoder.d_model}
+  dim_feedforward: 128
+  num_components: 20
+  single_head: false
+  trange:
+  - -1
+  - 1
+  std_min: 0.001
+  loss_latent_weight: ${dataset.loss_latent_weight}
+  loss_data_weight: ${dataset.loss_data_weight}
+dataset:
+  _target_: src.dataset.sampler_twoway.Sampler
+  name: opt_kernlist_gp1d_2way_fast
+  num_ctx: random
+  dim_input: 2
+  num_latent: 2
+  max_ctx_points: 50
+  min_ctx_points: 3
+  n_total_points: 100
+  x_range:
+  - - -1
+  - - 1
+  loss_latent_weight: 73.5
+  loss_data_weight: 1
+  device: cpu
+  ctx_tar_sampler: bernuniformsampler
+  problem:
+    _target_: src.dataset.optimization.synthetic_optnd_2way.OptimizationGPND2WayManyKernelsFast
+    kernel_list:
+    - matern12
+    - matern32
+    - matern52
+    - rbf
+    kernel_sample_weight:
+    - 0.1
+    - 0.2
+    - 0.35
+    - 0.35
+    lengthscale_range:
+    - 0.05
+    - 2
+    std_range:
+    - 0.1
+    - 2
+    p_iso: 0.5

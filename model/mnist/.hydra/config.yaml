@@ -1,0 +1,90 @@
+seed: 50
+batch_size: 64
+eval_batch_size: 1000
+eval_split: 10
+n_extra_point_eval: 10
+num_steps: 250000
+print_freq: 10
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.0005
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: ${num_steps}
+checkpoint: true
+ckpt_save_freq: 10000
+dataset:
+  discrete_index:
+  - 0.0
+  - 1.0
+  - 2.0
+  - 3.0
+  - 4.0
+  - 5.0
+  - 6.0
+  - 7.0
+  - 8.0
+  - 9.0
+  loss_latent_weight: 1
+  loss_data_weight: 1
+  _target_: src.dataset.sampler_twoway.Sampler
+  name: lengthscale_gp2d_2wa_fast
+  num_ctx: random
+  dim_input: 3
+  num_latent: 1
+  max_ctx_points: 200
+  min_ctx_points: 5
+  n_total_points: 256
+  x_range:
+  - - -1
+    - -1
+  - - 1
+    - 1
+  device: cpu
+  ctx_tar_sampler: bernuniformsampler
+  problem:
+    _target_: src.dataset.latents.image_no_np.Image
+wandb:
+  group: unnamed
+  project: amoritize-everything
+  use_wandb: true
+  run_name: p05=${seed}-data=${dataset.name}-batch=${batch_size}--lr=${optimizer.lr}
+  tags:
+  - dataset=${dataset.name}
+  - seed=${seed}
+  - group=${wandb.group}
+embedder:
+  _target_: src.model.embedder.EmbedderMarker
+  name: mark_emb_skip
+  dim_hid: 64
+  dim_out: ${encoder.d_model}
+  emb_depth: 4
+  pos_emb_init: true
+  use_skipcon_mlp: true
+  discrete_index: ${dataset.discrete_index}
+  num_latent: ${dataset.num_latent}
+  dim_xc: ${dataset.dim_input}
+  dim_yc: 1
+encoder:
+  _target_: src.model.encoder.TNPDEncoder
+  name: tnpd
+  d_model: 64
+  dim_feedforward: 128
+  n_head: 4
+  dropout: 0.0
+  num_layers: 6
+target_head:
+  _target_: src.model.target_head.MixtureGaussian
+  name: mixture_gaussian
+  dim_y: 1
+  d_model: ${encoder.d_model}
+  dim_feedforward: 128
+  num_components: 2
+  single_head: false
+  trange:
+  - -1
+  - 1
+  std_min: 0.001
+  loss_latent_weight: ${dataset.loss_latent_weight}
+  discrete_index: ${dataset.discrete_index}
+  loss_data_weight: ${dataset.loss_data_weight}
