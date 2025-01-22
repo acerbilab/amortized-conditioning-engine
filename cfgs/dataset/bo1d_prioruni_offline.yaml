@@ -1,0 +1,29 @@
+num_data : 3000 #offline file count
+num_vcpu : 32
+num_processes : 32
+data_dir : "./offline_data/bo1duni/"
+mp_method: "spawn"
+_target_: src.dataset.ctx_tar_sampler_prior.ContextTargetSamplerWithPrior
+name : "bo_1d_prior"
+num_ctx: 'random'
+dim_input: 2 # 1 + actual input dim
+num_latent: 2 # x1_star, y_star 
+max_ctx_points: 50
+min_ctx_points: 3
+n_total_points: 100 # at least num_latent + max_ctx_points
+x_range: [[-1],[1]]
+loss_latent_weight: 1
+loss_data_weight: 1
+device: 'cpu'
+ctx_tar_sampler: 'bernuniformsampler'
+num_bins: 100
+problem: 
+  _target_: src.dataset.optimization.offline_bo_data_generator_prior.ProblemWrapper
+  data_dir: ${dataset.data_dir}
+  data_batch_size: 1024
+  train_batch_size: ${batch_size}
+  eval_batch_size: ${eval_batch_size}
+  eval_split: ${eval_split}
+  train_test_split: 0.9
+  num_workers: 32
+  prior: True

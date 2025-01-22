@@ -1,0 +1,7 @@
+_target_: src.model.encoder.TNPDEncoder
+name: tnpd_dm128df256l6
+d_model: 128
+dim_feedforward: 256
+n_head: 8
+dropout: 0.0
+num_layers: 6

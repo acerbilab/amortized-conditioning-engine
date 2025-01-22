@@ -1,0 +1,11 @@
+_target_: src.model.embedder.EmbedderMarker
+name: mark_emb_skip
+dim_hid: 64
+dim_out: ${encoder.d_model}
+emb_depth: 4
+pos_emb_init: True
+use_skipcon_mlp: True
+discrete_index: ${dataset.discrete_index} 
+num_latent: ${dataset.num_latent}
+dim_xc: ${dataset.dim_input}
+dim_yc: 1

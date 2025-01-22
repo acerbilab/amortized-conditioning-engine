@@ -1,0 +1,22 @@
+_target_: src.dataset.sampler_twoway.Sampler
+name : "lengthscale_gp2d_2wa_fast"
+num_ctx: 'random'
+dim_input: 3 # 1 marker + 2 actual input dim
+num_latent: 1 # lengthscale, logstd, kernel
+max_ctx_points: 250
+min_ctx_points: 100
+n_total_points: 256 # at least num_latent + max_ctx_points
+x_range: [[-1, -1],[1, 1]]
+device: 'cpu'
+ctx_tar_sampler: 'bernuniformsampler'
+discrete_index: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0] # Co
+loss_latent_weight: 1
+loss_data_weight: 1
+problem:
+  _target_: src.dataset.latents.image_no_np.Image
+  # kernel_list: ["matern12","rbf","matern52","linear"] #["matern12","matern32","matern52","rbf"]
+  # kernel_sample_weight: [0.25, 0.25, 0.25, 0.25] #, 0.35, 0.35]
+  # lengthscale_range: [0.05, 2] # for nd BO lengthscales will be multiplied by sqrt(actual_input_dim)
+  # std_range: [0.1, 2]
+  # p_iso: 0.5
+  # predict_kernel: True

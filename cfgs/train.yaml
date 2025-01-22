@@ -1,0 +1,42 @@
+defaults:
+  - _self_
+  - embedder: embedder_marker_skipcon # change to "split_cat_embedder" for 1way
+  - encoder: tnpd_twice # change to "tnpd" for smaller model
+  - target_head: mixture_head #_discrete
+  - dataset: gp_sampler_kernel #image_sampler #_fast #kernel_2d # change to "lengthscale_logstd_gp" for 1way
+
+seed: 50
+batch_size: 16
+
+eval_batch_size: 1000
+eval_split: 10 # above eval batch will be splitted by this so it fits on mem
+n_extra_point_eval: 10 # this will be added to num_max_ctx for faster evals
+num_steps: 150000
+print_freq: 10 #500 #10 and also eval freq 
+
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.0005
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: ${num_steps} # match num_steps in training
+
+checkpoint: True
+ckpt_save_freq: 10000
+
+dataset:
+  discrete_index: null  # Explicitly setting a default as nul
+  loss_latent_weight: 1
+  loss_data_weight: 1
+
+##### W&B config #####
+wandb:
+  group: "unnamed"
+  project: "amoritize-everything"
+  use_wandb: False
+  run_name: "seed=${seed}-data=${dataset.name}-batch=${batch_size}--lr=${optimizer.lr}"
+  tags:
+    - "dataset=${dataset.name}"
+    - "seed=${seed}"
+    - "group=${wandb.group}"
