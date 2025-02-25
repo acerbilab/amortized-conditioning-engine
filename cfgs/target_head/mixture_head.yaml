@@ -5,7 +5,7 @@ d_model: ${encoder.d_model}
 dim_feedforward: 128
 num_components: 20
 single_head: False
-trange: ${dataset.x_range}
+trange: [-1,1]
 std_min: 0.001
 loss_latent_weight: ${dataset.loss_latent_weight}
 discrete_index: ${dataset.discrete_index}
