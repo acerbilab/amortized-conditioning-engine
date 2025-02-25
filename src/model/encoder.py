@@ -5,7 +5,6 @@ from typing import Optional, List
 
 
 class ACETransformerEncoderLayer(TransformerEncoderLayer):
-
     def _sa_block(
         self,
         x: Tensor,

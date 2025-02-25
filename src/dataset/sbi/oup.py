@@ -5,6 +5,7 @@ from torch.utils.data import Dataset, DataLoader
 from src.dataset.sbi.sbi_dataset import SBILoader, SBILoaderPI
 from src.dataset.prior_sampler import PriorSampler
 
+
 class OUP(SBILoader):
     def get_name(self):
         return "OUP"
@@ -30,10 +31,10 @@ class OUPSimulator(object):
         X = torch.zeros(num_points)
         X[0] = 10
 
-        w = torch.normal(0., 1., size=([num_points]))
+        w = torch.normal(0.0, 1.0, size=([num_points]))
 
         for t in range(num_points - 1):
-            mu, sigma = theta_1 * (theta_2_exp - X[t]) * dt, 0.5 * (dt ** 0.5) * w[t]
+            mu, sigma = theta_1 * (theta_2_exp - X[t]) * dt, 0.5 * (dt**0.5) * w[t]
             X[t + 1] = X[t] + mu + sigma
 
         return X, torch.stack([theta_1, theta_2], dim=0).squeeze()
@@ -46,23 +47,31 @@ class OUPOnline(object):
         self.simulator = OUPSimulator()
 
     def get_data(
-            self,
-            batch_size=16,
-            n_total_points=None,
-            n_ctx_points=None,
-            x_range=None,
-            device="cpu"):
-
+        self,
+        batch_size=16,
+        n_total_points=None,
+        n_ctx_points=None,
+        x_range=None,
+        device="cpu",
+    ):
         sampled_points = []
         for i in range(batch_size):
             theta_1 = self.simulator.theta_1.sample()
             theta_2 = self.simulator.theta_2.sample()
 
-            sampled_points.append(self.simulate_oup(theta_1=theta_1, theta_2=theta_2, num_points=self.num_points))
+            sampled_points.append(
+                self.simulate_oup(
+                    theta_1=theta_1, theta_2=theta_2, num_points=self.num_points
+                )
+            )
 
         # Stack the sampled points into tensors
-        batch_xyd = torch.stack([point[0] for point in sampled_points], dim=0)  # [B,Nc,3]
-        batch_xyl = torch.stack([point[1] for point in sampled_points], dim=0)  # [B,Nc,3]
+        batch_xyd = torch.stack(
+            [point[0] for point in sampled_points], dim=0
+        )  # [B,Nc,3]
+        batch_xyl = torch.stack(
+            [point[1] for point in sampled_points], dim=0
+        )  # [B,Nc,3]
         return batch_xyd, batch_xyl
 
     def simulate_oup(self, theta_1, theta_2, num_points):
@@ -70,7 +79,9 @@ class OUPOnline(object):
 
         if self.order == "random":
             d_index = torch.randperm(num_points)
-            xd = torch.arange(num_points).unsqueeze(-1).float()[d_index]  # [num_points, 1]
+            xd = (
+                torch.arange(num_points).unsqueeze(-1).float()[d_index]
+            )  # [num_points, 1]
             yd = X.unsqueeze(-1)[d_index]  # [num_points, 1]
         else:
             xd = torch.arange(num_points).unsqueeze(-1).float()
@@ -99,12 +110,14 @@ class OUPOnlineAll(object):
 
         self.simulator = OUPSimulator()
 
-    def get_data(self,
-                 batch_size=16,
-                 n_total_points=None,
-                 n_ctx_points=None,
-                 x_range=None,
-                 device="cpu"):
+    def get_data(
+        self,
+        batch_size=16,
+        n_total_points=None,
+        n_ctx_points=None,
+        x_range=None,
+        device="cpu",
+    ):
         batch = AttrDict()
 
         batch.xc = torch.empty(batch_size, self.num_points, 1)  # [B,Nc,3]
@@ -113,20 +126,62 @@ class OUPOnlineAll(object):
         batch.yt = torch.empty(batch_size, 2, 1)  # [B,Nt,1]
         batch.xyd = torch.empty(batch_size, self.num_points, 3)  # [B,Nc,3]
         batch.xyl_without_prior = torch.empty(batch_size, 2, 3)  # [B,Nt,3]
-        batch.xyl_with_prior_narrow = torch.empty(batch_size, 2, self.num_bins + 3)  # [B,Nt,100+3]
-        batch.xyl_with_prior_wide = torch.empty(batch_size, 2, self.num_bins + 3)  # [B,Nt,100+3]
+        batch.xyl_with_prior_narrow = torch.empty(
+            batch_size, 2, self.num_bins + 3
+        )  # [B,Nt,100+3]
+        batch.xyl_with_prior_wide = torch.empty(
+            batch_size, 2, self.num_bins + 3
+        )  # [B,Nt,100+3]
 
         for i in range(batch_size):
-            theta_1_sampler = PriorSampler(self.num_bins, 0, 2, self.simulator.theta_1, self.simulator.theta_1_std_prior)
-            theta_2_sampler = PriorSampler(self.num_bins, -2, 2, self.simulator.theta_2, self.simulator.theta_2_std_prior)
+            theta_1_sampler = PriorSampler(
+                self.num_bins,
+                0,
+                2,
+                self.simulator.theta_1,
+                self.simulator.theta_1_std_prior,
+            )
+            theta_2_sampler = PriorSampler(
+                self.num_bins,
+                -2,
+                2,
+                self.simulator.theta_2,
+                self.simulator.theta_2_std_prior,
+            )
 
-            theta_1, bin_weights_1_narrow, bin_weights_1_wide = theta_1_sampler.sample_theta_first_then_bin(
-                self.simulator.theta_1, self.theta_1_std_narrow, self.theta_1_std_wide)
-            theta_2, bin_weights_2_narrow, bin_weights_2_wide = theta_2_sampler.sample_theta_first_then_bin(
-                self.simulator.theta_2, self.theta_2_std_narrow, self.theta_2_std_wide)
+            theta_1, bin_weights_1_narrow, bin_weights_1_wide = (
+                theta_1_sampler.sample_theta_first_then_bin(
+                    self.simulator.theta_1,
+                    self.theta_1_std_narrow,
+                    self.theta_1_std_wide,
+                )
+            )
+            theta_2, bin_weights_2_narrow, bin_weights_2_wide = (
+                theta_2_sampler.sample_theta_first_then_bin(
+                    self.simulator.theta_2,
+                    self.theta_2_std_narrow,
+                    self.theta_2_std_wide,
+                )
+            )
 
-            xc, yc, xt, yt, xyd, xyl_without_prior, xyl_with_prior_narrow, xyl_with_prior_wide = self.simulate_oup(
-                theta_1, theta_2, bin_weights_1_narrow, bin_weights_1_wide, bin_weights_2_narrow, bin_weights_2_wide, self.num_points)
+            (
+                xc,
+                yc,
+                xt,
+                yt,
+                xyd,
+                xyl_without_prior,
+                xyl_with_prior_narrow,
+                xyl_with_prior_wide,
+            ) = self.simulate_oup(
+                theta_1,
+                theta_2,
+                bin_weights_1_narrow,
+                bin_weights_1_wide,
+                bin_weights_2_narrow,
+                bin_weights_2_wide,
+                self.num_points,
+            )
 
             batch.xc[i] = xc
             batch.yc[i] = yc
@@ -139,28 +194,35 @@ class OUPOnlineAll(object):
 
         return batch
 
-    def simulate_oup(self,
-                     theta_1,
-                     theta_2,
-                     bin_weights_1_narrow,
-                     bin_weights_1_wide,
-                     bin_weights_2_narrow,
-                     bin_weights_2_wide,
-                     num_points
-                     ):
+    def simulate_oup(
+        self,
+        theta_1,
+        theta_2,
+        bin_weights_1_narrow,
+        bin_weights_1_wide,
+        bin_weights_2_narrow,
+        bin_weights_2_wide,
+        num_points,
+    ):
         X, theta = self.simulator.simulate(theta_1, theta_2, num_points)
 
         if self.order == "random":
             d_index = torch.randperm(num_points)
-            xd = torch.arange(num_points).unsqueeze(-1).float()[d_index]  # [num_points, 1]
-            yd = X.unsqueeze(-1)[d_index]  # [num_points, 1], normalize by the total count
+            xd = (
+                torch.arange(num_points).unsqueeze(-1).float()[d_index]
+            )  # [num_points, 1]
+            yd = X.unsqueeze(-1)[
+                d_index
+            ]  # [num_points, 1], normalize by the total count
         else:
             xd = torch.arange(num_points).unsqueeze(-1).float()
             yd = X.unsqueeze(-1)
 
         xl = torch.tensor([0, 0]).unsqueeze(-1).float()
         yl = torch.tensor([theta_1, theta_2]).unsqueeze(-1).float()
-        yl_weights_narrow = torch.stack([bin_weights_1_narrow, bin_weights_2_narrow], dim=0)
+        yl_weights_narrow = torch.stack(
+            [bin_weights_1_narrow, bin_weights_2_narrow], dim=0
+        )
         yl_weights_wide = torch.stack([bin_weights_1_wide, bin_weights_2_wide], dim=0)
 
         xc = xd
@@ -171,10 +233,23 @@ class OUPOnlineAll(object):
         xyd = torch.cat((torch.full_like(xd, 1), xd, yd), dim=-1)
         latent_marker = torch.arange(2, 4).unsqueeze(-1)
         xyl_without_prior = torch.cat((latent_marker, xl, yl), dim=-1)
-        xyl_with_prior_narrow = torch.cat((latent_marker, xl, yl, yl_weights_narrow), dim=-1)  # [Nl, 3 + 100]
-        xyl_with_prior_wide = torch.cat((latent_marker, xl, yl, yl_weights_wide), dim=-1)  # [Nl, 3 + 100]
+        xyl_with_prior_narrow = torch.cat(
+            (latent_marker, xl, yl, yl_weights_narrow), dim=-1
+        )  # [Nl, 3 + 100]
+        xyl_with_prior_wide = torch.cat(
+            (latent_marker, xl, yl, yl_weights_wide), dim=-1
+        )  # [Nl, 3 + 100]
 
-        return xc, yc, xt, yt, xyd, xyl_without_prior, xyl_with_prior_narrow, xyl_with_prior_wide
+        return (
+            xc,
+            yc,
+            xt,
+            yt,
+            xyd,
+            xyl_without_prior,
+            xyl_with_prior_narrow,
+            xyl_with_prior_wide,
+        )
 
 
 class OUPOnlineAllSamePrior(object):
@@ -191,12 +266,14 @@ class OUPOnlineAllSamePrior(object):
 
         self.simulator = OUPSimulator()
 
-    def get_data(self,
-                 batch_size=16,
-                 n_total_points=None,
-                 n_ctx_points=None,
-                 x_range=None,
-                 device="cpu"):
+    def get_data(
+        self,
+        batch_size=16,
+        n_total_points=None,
+        n_ctx_points=None,
+        x_range=None,
+        device="cpu",
+    ):
         batch = AttrDict()
 
         batch.xc = torch.empty(batch_size, self.num_points, 1)  # [B,Nc,3]
@@ -205,11 +282,27 @@ class OUPOnlineAllSamePrior(object):
         batch.yt = torch.empty(batch_size, 2, 1)  # [B,Nt,1]
         batch.xyd = torch.empty(batch_size, self.num_points, 3)  # [B,Nc,3]
         batch.xyl_without_prior = torch.empty(batch_size, 2, 3)  # [B,Nt,3]
-        batch.xyl_with_prior_narrow = torch.empty(batch_size, 2, self.num_bins + 3)  # [B,Nt,100+3]
-        batch.xyl_with_prior_wide = torch.empty(batch_size, 2, self.num_bins + 3)  # [B,Nt,100+3]
+        batch.xyl_with_prior_narrow = torch.empty(
+            batch_size, 2, self.num_bins + 3
+        )  # [B,Nt,100+3]
+        batch.xyl_with_prior_wide = torch.empty(
+            batch_size, 2, self.num_bins + 3
+        )  # [B,Nt,100+3]
 
-        theta_1_sampler = PriorSampler(self.num_bins, 0, 2, self.simulator.theta_1, self.simulator.theta_1_std_prior)
-        theta_2_sampler = PriorSampler(self.num_bins, -2, 2, self.simulator.theta_2, self.simulator.theta_2_std_prior)
+        theta_1_sampler = PriorSampler(
+            self.num_bins,
+            0,
+            2,
+            self.simulator.theta_1,
+            self.simulator.theta_1_std_prior,
+        )
+        theta_2_sampler = PriorSampler(
+            self.num_bins,
+            -2,
+            2,
+            self.simulator.theta_2,
+            self.simulator.theta_2_std_prior,
+        )
 
         bin_weights_1 = theta_1_sampler.sample_bin_weights("mixture")
         bin_weights_2 = theta_2_sampler.sample_bin_weights("mixture")
@@ -217,8 +310,18 @@ class OUPOnlineAllSamePrior(object):
             theta_1 = theta_1_sampler.sample_theta_from_bin_distribution(bin_weights_1)
             theta_2 = theta_2_sampler.sample_theta_from_bin_distribution(bin_weights_2)
 
-            xc, yc, xt, yt, xyd, xyl_without_prior, xyl_with_prior_narrow, xyl_with_prior_wide = self.simulate_oup(
-                theta_1, theta_2, bin_weights_1, bin_weights_2, self.num_points)
+            (
+                xc,
+                yc,
+                xt,
+                yt,
+                xyd,
+                xyl_without_prior,
+                xyl_with_prior_narrow,
+                xyl_with_prior_wide,
+            ) = self.simulate_oup(
+                theta_1, theta_2, bin_weights_1, bin_weights_2, self.num_points
+            )
 
             batch.xc[i] = xc
             batch.yc[i] = yc
@@ -231,19 +334,17 @@ class OUPOnlineAllSamePrior(object):
 
         return batch
 
-    def simulate_oup(self,
-                     theta_1,
-                     theta_2,
-                     bin_weights_1,
-                     bin_weights_2,
-                     num_points
-                     ):
+    def simulate_oup(self, theta_1, theta_2, bin_weights_1, bin_weights_2, num_points):
         X, theta = self.simulator.simulate(theta_1, theta_2, num_points)
 
         if self.order == "random":
             d_index = torch.randperm(num_points)
-            xd = torch.arange(num_points).unsqueeze(-1).float()[d_index]  # [num_points, 1]
-            yd = X.unsqueeze(-1)[d_index]  # [num_points, 1], normalize by the total count
+            xd = (
+                torch.arange(num_points).unsqueeze(-1).float()[d_index]
+            )  # [num_points, 1]
+            yd = X.unsqueeze(-1)[
+                d_index
+            ]  # [num_points, 1], normalize by the total count
         else:
             xd = torch.arange(num_points).unsqueeze(-1).float()
             yd = X.unsqueeze(-1)
@@ -261,10 +362,23 @@ class OUPOnlineAllSamePrior(object):
         xyd = torch.cat((torch.full_like(xd, 1), xd, yd), dim=-1)
         latent_marker = torch.arange(2, 4).unsqueeze(-1)
         xyl_without_prior = torch.cat((latent_marker, xl, yl), dim=-1)
-        xyl_with_prior_narrow = torch.cat((latent_marker, xl, yl, yl_weights_narrow), dim=-1)  # [Nl, 3 + 100]
-        xyl_with_prior_wide = torch.cat((latent_marker, xl, yl, yl_weights_wide), dim=-1)  # [Nl, 3 + 100]
+        xyl_with_prior_narrow = torch.cat(
+            (latent_marker, xl, yl, yl_weights_narrow), dim=-1
+        )  # [Nl, 3 + 100]
+        xyl_with_prior_wide = torch.cat(
+            (latent_marker, xl, yl, yl_weights_wide), dim=-1
+        )  # [Nl, 3 + 100]
 
-        return xc, yc, xt, yt, xyd, xyl_without_prior, xyl_with_prior_narrow, xyl_with_prior_wide
+        return (
+            xc,
+            yc,
+            xt,
+            yt,
+            xyd,
+            xyl_without_prior,
+            xyl_with_prior_narrow,
+            xyl_with_prior_wide,
+        )
 
 
 def generate_oup(num_samples):
@@ -286,8 +400,8 @@ def generate_oup(num_samples):
     X_data = torch.stack(X_list)  # [num_samples, num_points]
     theta_data = torch.stack(theta_list)  # [num_samples, 2]
 
-    torch.save(X_data, 'data/x_oup_{:d}.pt'.format(num_samples))
-    torch.save(theta_data, 'data/theta_oup_{:d}.pt'.format(num_samples))
+    torch.save(X_data, "data/x_oup_{:d}.pt".format(num_samples))
+    torch.save(theta_data, "data/theta_oup_{:d}.pt".format(num_samples))
 
 
 def generate_oup_pi(num_samples):
@@ -300,8 +414,12 @@ def generate_oup_pi(num_samples):
     weights_list = []
 
     for _ in range(num_samples):
-        theta_1_sampler = PriorSampler(num_bins, 0, 2, oup_simulator.theta_1, oup_simulator.theta_1_std_prior)
-        theta_2_sampler = PriorSampler(num_bins, -2, 2, oup_simulator.theta_2, oup_simulator.theta_2_std_prior)
+        theta_1_sampler = PriorSampler(
+            num_bins, 0, 2, oup_simulator.theta_1, oup_simulator.theta_1_std_prior
+        )
+        theta_2_sampler = PriorSampler(
+            num_bins, -2, 2, oup_simulator.theta_2, oup_simulator.theta_2_std_prior
+        )
 
         bin_weights_1 = theta_1_sampler.sample_bin_weights("mixture")
         bin_weights_2 = theta_2_sampler.sample_bin_weights("mixture")
@@ -319,9 +437,9 @@ def generate_oup_pi(num_samples):
     theta_data = torch.stack(theta_list)  # [num_samples, 2]
     weights_data = torch.stack(weights_list)  # [num_samples, 2, num_bins]
 
-    torch.save(X_data, 'data/x_oup_pi_{:d}.pt'.format(num_samples))
-    torch.save(theta_data, 'data/theta_oup_pi_{:d}.pt'.format(num_samples))
-    torch.save(weights_data, 'data/weights_oup_pi_{:d}.pt'.format(num_samples))
+    torch.save(X_data, "data/x_oup_pi_{:d}.pt".format(num_samples))
+    torch.save(theta_data, "data/theta_oup_pi_{:d}.pt".format(num_samples))
+    torch.save(weights_data, "data/weights_oup_pi_{:d}.pt".format(num_samples))
 
 
 if __name__ == "__main__":

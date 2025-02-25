@@ -88,19 +88,17 @@ class BayesianOptimizerACE:
                     self.true_function(x_query[0]).view([1, 1, 1]),
                     dtype=torch.float32,
                 )  # [1,1,1]
-            #print(f"query: {new_xc}:{f}")
+            # print(f"query: {new_xc}:{f}")
             # Update the batch with the new query point and its evaluation
             batch_autoreg.xc = torch.cat([batch_autoreg.xc, new_xc], dim=1)
             batch_autoreg.yc = torch.cat([batch_autoreg.yc, f], dim=1)
-            
+
             if "latent_bin_weights" in batch_autoreg:
                 # for prior stuff, add zero/false bin_weights and mask
                 batch_autoreg.latent_bin_weights = torch.concat(
                     [
                         batch_autoreg.latent_bin_weights,
-                        torch.zeros_like(
-                            batch_autoreg.latent_bin_weights[:, -1:, :]
-                        ),
+                        torch.zeros_like(batch_autoreg.latent_bin_weights[:, -1:, :]),
                     ],
                     axis=1,
                 )

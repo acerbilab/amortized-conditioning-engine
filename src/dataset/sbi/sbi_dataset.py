@@ -21,7 +21,9 @@ class SBIDataset(Dataset):
 
         if self.order == "random":
             d_index = torch.randperm(self.num_points)
-            xd = torch.arange(self.num_points).unsqueeze(-1).float()[d_index]  # [num_points, 1]
+            xd = (
+                torch.arange(self.num_points).unsqueeze(-1).float()[d_index]
+            )  # [num_points, 1]
             yd = X_sample.unsqueeze(-1)[d_index]  # [num_points, 1]
         else:
             xd = torch.arange(self.num_points).unsqueeze(-1).float()
@@ -34,7 +36,7 @@ class SBIDataset(Dataset):
         xl = torch.zeros(theta_dim, 1).float()
         yl = theta_sample.unsqueeze(-1).float()  # [theta_dim, 1]
 
-        latent_marker = torch.arange(2, theta_dim+2).unsqueeze(-1).float()
+        latent_marker = torch.arange(2, theta_dim + 2).unsqueeze(-1).float()
         xyl = torch.cat((latent_marker, xl, yl), dim=-1)
 
         return xyd, xyl
@@ -61,7 +63,9 @@ class SBIDatasetPI(Dataset):
 
         if self.order == "random":
             d_index = torch.randperm(self.num_points)
-            xd = torch.arange(self.num_points).unsqueeze(-1).float()[d_index]  # [num_points, 1]
+            xd = (
+                torch.arange(self.num_points).unsqueeze(-1).float()[d_index]
+            )  # [num_points, 1]
             yd = X_sample.unsqueeze(-1)[d_index]  # [num_points, 1]
         else:
             xd = torch.arange(self.num_points).unsqueeze(-1).float()
@@ -74,7 +78,7 @@ class SBIDatasetPI(Dataset):
         xl = torch.zeros(theta_dim, 1).float()
         yl = theta_sample.unsqueeze(-1).float()  # [theta_dim, 1]
         yl_weights = weights_sample
-        latent_marker = torch.arange(2, theta_dim+2).unsqueeze(-1).float()
+        latent_marker = torch.arange(2, theta_dim + 2).unsqueeze(-1).float()
         xyl = torch.cat((latent_marker, xl, yl, yl_weights), dim=-1)
 
         return xyd, xyl
@@ -84,6 +88,7 @@ class SBIDatasetPINew(Dataset):
     """
     New dataset works with the new prior sampler.
     """
+
     def __init__(self, x_file, theta_file, weights_file, order="random"):
         self.X = torch.load(x_file)  # [num_samples, num_points]
         self.theta = torch.load(theta_file)  # [num_samples, theta_dim]
@@ -104,7 +109,9 @@ class SBIDatasetPINew(Dataset):
 
         if self.order == "random":
             d_index = torch.randperm(self.num_points)
-            xd = torch.arange(self.num_points).unsqueeze(-1).float()[d_index]  # [num_points, 1]
+            xd = (
+                torch.arange(self.num_points).unsqueeze(-1).float()[d_index]
+            )  # [num_points, 1]
             yd = X_sample.unsqueeze(-1)[d_index]  # [num_points, 1]
         else:
             xd = torch.arange(self.num_points).unsqueeze(-1).float()
@@ -117,27 +124,32 @@ class SBIDatasetPINew(Dataset):
         xl = torch.zeros(theta_dim, 1).float()
         yl = theta_sample.unsqueeze(-1).float()  # [theta_dim, 1]
         yl_weights = weights_sample
-        latent_marker = torch.arange(2, theta_dim+2).unsqueeze(-1).float()
+        latent_marker = torch.arange(2, theta_dim + 2).unsqueeze(-1).float()
         xyl = torch.cat((latent_marker, xl, yl), dim=-1)
 
         return xyd, xyl, yl_weights
 
 
 class SBILoader(object):
-    def __init__(self, x_file, theta_file, batch_size=100, shuffle=True, order="random"):
+    def __init__(
+        self, x_file, theta_file, batch_size=100, shuffle=True, order="random"
+    ):
         self.x_file = x_file
         self.theta_file = theta_file
         self.dataset = SBIDataset(self.x_file, self.theta_file, order=order)
-        self.dataloader = DataLoader(self.dataset, batch_size=batch_size, shuffle=shuffle, drop_last=True)
+        self.dataloader = DataLoader(
+            self.dataset, batch_size=batch_size, shuffle=shuffle, drop_last=True
+        )
         self.dataiter = iter(self.dataloader)
 
-    def get_data(self,
-                 batch_size=16,
-                 n_total_points=None,
-                 n_ctx_points=None,
-                 x_range=None,
-                 device="cpu"
-                 ):
+    def get_data(
+        self,
+        batch_size=16,
+        n_total_points=None,
+        n_ctx_points=None,
+        x_range=None,
+        device="cpu",
+    ):
         try:
             xyd, xyl = next(self.dataiter)
         except StopIteration:
@@ -147,22 +159,35 @@ class SBILoader(object):
 
 
 class SBILoaderPI(object):
-    def __init__(self, x_file, theta_file, weights_file, batch_size=100, shuffle=True, order="random"):
+    def __init__(
+        self,
+        x_file,
+        theta_file,
+        weights_file,
+        batch_size=100,
+        shuffle=True,
+        order="random",
+    ):
         self.x_file = x_file
         self.theta_file = theta_file
         self.weights_file = weights_file
-        self.dataset = SBIDatasetPI(self.x_file, self.theta_file, self.weights_file, order=order)
-        self.dataloader = DataLoader(self.dataset, batch_size=batch_size, shuffle=shuffle, drop_last=True)
+        self.dataset = SBIDatasetPI(
+            self.x_file, self.theta_file, self.weights_file, order=order
+        )
+        self.dataloader = DataLoader(
+            self.dataset, batch_size=batch_size, shuffle=shuffle, drop_last=True
+        )
         self.dataiter = iter(self.dataloader)
 
-    def get_data(self,
-                 batch_size=16,
-                 n_total_points=None,
-                 n_ctx_points=None,
-                 x_range=None,
-                 num_bins=None,
-                 device="cpu"
-                 ):
+    def get_data(
+        self,
+        batch_size=16,
+        n_total_points=None,
+        n_ctx_points=None,
+        x_range=None,
+        num_bins=None,
+        device="cpu",
+    ):
         try:
             xyd, xyl = next(self.dataiter)
         except StopIteration:
@@ -172,22 +197,35 @@ class SBILoaderPI(object):
 
 
 class SBILoaderPINew(object):
-    def __init__(self, x_file, theta_file, weights_file, batch_size=100, shuffle=True, order="random"):
+    def __init__(
+        self,
+        x_file,
+        theta_file,
+        weights_file,
+        batch_size=100,
+        shuffle=True,
+        order="random",
+    ):
         self.x_file = x_file
         self.theta_file = theta_file
         self.weights_file = weights_file
-        self.dataset = SBIDatasetPINew(self.x_file, self.theta_file, self.weights_file, order=order)
-        self.dataloader = DataLoader(self.dataset, batch_size=batch_size, shuffle=shuffle, drop_last=True)
+        self.dataset = SBIDatasetPINew(
+            self.x_file, self.theta_file, self.weights_file, order=order
+        )
+        self.dataloader = DataLoader(
+            self.dataset, batch_size=batch_size, shuffle=shuffle, drop_last=True
+        )
         self.dataiter = iter(self.dataloader)
 
-    def get_data(self,
-                 batch_size=16,
-                 n_total_points=None,
-                 n_ctx_points=None,
-                 x_range=None,
-                 num_bins=None,
-                 device="cpu"
-                 ):
+    def get_data(
+        self,
+        batch_size=16,
+        n_total_points=None,
+        n_ctx_points=None,
+        x_range=None,
+        num_bins=None,
+        device="cpu",
+    ):
         try:
             xyd, xyl, weights = next(self.dataiter)
         except StopIteration:

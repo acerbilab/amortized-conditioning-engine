@@ -1,5 +1,12 @@
 import torch
-from torch.distributions import Uniform, LogNormal, Categorical, Normal, Dirichlet, Geometric
+from torch.distributions import (
+    Uniform,
+    LogNormal,
+    Categorical,
+    Normal,
+    Dirichlet,
+    Geometric,
+)
 
 
 class PriorSampler:
@@ -31,7 +38,9 @@ class PriorSampler:
             tuple: Weights, means, and standard deviations of the Gaussian components.
         """
         K = Geometric(0.4).sample().int().item() + 1  # number of components
-        component_type = Categorical(torch.tensor([1 / 3, 1 / 3, 1 / 3])).sample().item()
+        component_type = (
+            Categorical(torch.tensor([1 / 3, 1 / 3, 1 / 3])).sample().item()
+        )
 
         means = self.mean_prior.sample((K,)).squeeze()
         stds = self.std_prior.sample((K,)).squeeze()
@@ -126,7 +135,7 @@ class PriorSampler:
         bin_probs_wide = cdf_right_wide - cdf_left_wide
         return theta, bin_probs_narrow, bin_probs_wide
 
-    def sample_bin_weights(self, mode='mixture', knowledge_degree=1.0):
+    def sample_bin_weights(self, mode="mixture", knowledge_degree=1.0):
         """
         Sample bin weights based on the specified mode.
 
@@ -137,22 +146,26 @@ class PriorSampler:
         Returns:
             torch.Tensor: Sampled bin weights.
         """
-        if mode == 'mixture':
+        if mode == "mixture":
             if torch.rand(1) < 0.8:
                 weights, means, stds = self.sample_mixture_gaussian_components()
                 bin_probs = torch.zeros(self.num_bins)
-                linspace = torch.linspace(self.bin_start, self.bin_end, self.num_bins + 1)
+                linspace = torch.linspace(
+                    self.bin_start, self.bin_end, self.num_bins + 1
+                )
                 for mean, std, weight in zip(means, stds, weights):
                     cdf_right = Normal(mean, std).cdf(linspace[1:])
                     cdf_left = Normal(mean, std).cdf(linspace[:-1])
                     bin_probs += weight * (cdf_right - cdf_left)
             else:
                 bin_probs = self.sample_uniform_bin_weights()
-        if mode == 'unif_mixture':
+        if mode == "unif_mixture":
             if torch.rand(1) < 0.8:
                 weights, means, stds = self.sample_mixture_gaussian_components()
                 bin_probs = torch.zeros(self.num_bins)
-                linspace = torch.linspace(self.bin_start, self.bin_end, self.num_bins + 1)
+                linspace = torch.linspace(
+                    self.bin_start, self.bin_end, self.num_bins + 1
+                )
                 for mean, std, weight in zip(means, stds, weights):
                     cdf_right = Normal(mean, std).cdf(linspace[1:])
                     cdf_left = Normal(mean, std).cdf(linspace[:-1])
@@ -160,17 +173,19 @@ class PriorSampler:
 
                 if torch.rand(1) < 0.5:
                     w_unif_max = 0.2
-                    w_unif_min = 0.
-                    w_unif = w_unif_min + (w_unif_max - w_unif_min) * torch.rand(1) 
-                    bin_probs = (w_unif*self.sample_uniform_bin_weights()) + ((1-w_unif)*bin_probs)
-                
+                    w_unif_min = 0.0
+                    w_unif = w_unif_min + (w_unif_max - w_unif_min) * torch.rand(1)
+                    bin_probs = (w_unif * self.sample_uniform_bin_weights()) + (
+                        (1 - w_unif) * bin_probs
+                    )
+
             else:
                 bin_probs = self.sample_uniform_bin_weights()
-        elif mode == 'uniform':
+        elif mode == "uniform":
             bin_probs = self.sample_uniform_bin_weights()
-        elif mode == 'narrow_gaussian':
+        elif mode == "narrow_gaussian":
             bin_probs = self.sample_narrow_gaussian_bin_weights()
-        elif mode == 'narrow_uniform':
+        elif mode == "narrow_uniform":
             bin_probs = self.sample_narrow_uniform_bin_weights(1 - knowledge_degree)
 
         bin_probs /= bin_probs.sum()  # make sure it is a valid probability distribution
@@ -206,5 +221,7 @@ class PriorSampler:
         cdf_right = Normal(mean, std).cdf(linspace[1:])
         cdf_left = Normal(mean, std).cdf(linspace[:-1])
         bin_probs = cdf_right - cdf_left
-        bin_probs /= bin_probs.sum()  # Normalize to ensure it's a valid probability distribution
+        bin_probs /= (
+            bin_probs.sum()
+        )  # Normalize to ensure it's a valid probability distribution
         return bin_probs

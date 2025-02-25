@@ -84,7 +84,6 @@ class MinValueEntropySearchAcqRule:
                 record_history=False,
             )
             if self.n_xopt_cond_D_samples == 0:
-
                 return x_cand_cond_yoptD
 
         if self.n_xopt_cond_D_samples > 0:
@@ -104,14 +103,20 @@ class MinValueEntropySearchAcqRule:
         return torch.cat([x_cand_cond_yoptD, x_cand_cond_d], dim=0)
 
     def sample(
-        self, model, batch_autoreg, x_ranges=None, n_samples=1, xs=None, record_history=False
+        self,
+        model,
+        batch_autoreg,
+        x_ranges=None,
+        n_samples=1,
+        xs=None,
+        record_history=False,
     ):
         """
         Sample using the Minimum Value Entropy Search acquisition rule.
         See Equation 5 of Wang and Jegelka (2017). Note that we want to maximize this
-        since it represents an information gain when conditioned on yopt. 
+        since it represents an information gain when conditioned on yopt.
 
-        H(p(ys|D,xs)) - E[H(p(ys|D,xs, yopt)) 
+        H(p(ys|D,xs)) - E[H(p(ys|D,xs, yopt))
 
         Parameters:
         model (torch.nn.Module): The predictive model.
@@ -128,7 +133,7 @@ class MinValueEntropySearchAcqRule:
             xs = self.sample_candidate_points(
                 model, batch_autoreg, x_ranges
             )  # [n_cand_points, 1 ,dimx]
-        else :
+        else:
             self.n_cand_points = len(xs)
 
         ## build batch for H(p(ys|D,xs)) computation ##
@@ -237,12 +242,12 @@ class MinValueEntropySearchAcqRule:
     ):
         """
         Sample using the Minimum Value Entropy Search acquisition rule.
-        This sampling scheme uses the direct MES calculation. Note that 
-        we want to minimize this since we want the entropy to decrease 
+        This sampling scheme uses the direct MES calculation. Note that
+        we want to minimize this since we want the entropy to decrease
         given that we observe the new point.
 
         E(H(p(yopt| data, (xs, ys))))
-        
+
         This is slow due to O(N^2) complexity on context set.
 
         Parameters:

@@ -75,7 +75,7 @@ def bern_unif_sampler(
     # Important: max_ctx_points must be the same during offline data generation
     ctx_rand_idx = torch.randperm(max_ctx_points)
     xyd[:, :max_ctx_points, :] = xyd[:, :max_ctx_points, :][:, ctx_rand_idx, :]
-    
+
     # shape xyd : [batch_size, n_total_points-num_latent, 1+xdim+1]
     # shape xyl : [batch_size, num_latent, 1+xdim+1]
     # shape latent_bin_weights : [batch_size, num_latent, num_bins]

@@ -1,6 +1,14 @@
 import torch
 from attrdict import AttrDict
-from torch.distributions import Uniform, Binomial, LogNormal, Categorical, Normal, Dirichlet, Geometric
+from torch.distributions import (
+    Uniform,
+    Binomial,
+    LogNormal,
+    Categorical,
+    Normal,
+    Dirichlet,
+    Geometric,
+)
 from ..sampler_utils import PriorSampler
 
 
@@ -13,18 +21,22 @@ class OUP(object):
         self.std_prior_theta_2 = Uniform(0.01 * torch.ones(1), 1 * torch.ones(1))
 
     def get_data(
-            self,
-            batch_size=16,
-            num_bins=100,
-            max_num_points=30,
-            num_ctx=None,
-            x_range=None,
-            device="cpu"):
-
+        self,
+        batch_size=16,
+        num_bins=100,
+        max_num_points=30,
+        num_ctx=None,
+        x_range=None,
+        device="cpu",
+    ):
         sampled_points = []
         for i in range(batch_size):
-            theta_1_sampler = PriorSampler(num_bins, 0, 2, self.mean_prior_theta_1, self.std_prior_theta_1)
-            theta_2_sampler = PriorSampler(num_bins, -2, 2, self.mean_prior_theta_2, self.std_prior_theta_2)
+            theta_1_sampler = PriorSampler(
+                num_bins, 0, 2, self.mean_prior_theta_1, self.std_prior_theta_1
+            )
+            theta_2_sampler = PriorSampler(
+                num_bins, -2, 2, self.mean_prior_theta_2, self.std_prior_theta_2
+            )
 
             bin_weights_1 = theta_1_sampler.sample_bin_weights("mixture", 1.0)
             bin_weights_2 = theta_2_sampler.sample_bin_weights("mixture", 1.0)
@@ -32,11 +44,9 @@ class OUP(object):
             theta_1 = theta_1_sampler.sample_theta_from_bin_distribution(bin_weights_1)
             theta_2 = theta_2_sampler.sample_theta_from_bin_distribution(bin_weights_2)
 
-            sampled_points.append(self.simulate_oup(theta_1,
-                                                    theta_2,
-                                                    bin_weights_1,
-                                                    bin_weights_2,
-                                                    25))  # we use fixed num_points
+            sampled_points.append(
+                self.simulate_oup(theta_1, theta_2, bin_weights_1, bin_weights_2, 25)
+            )  # we use fixed num_points
 
         # Stack the sampled points into tensors
         batch_xyd = torch.stack(
@@ -47,23 +57,17 @@ class OUP(object):
         )  # [B,Nc,3]
         return batch_xyd, batch_xyl
 
-    def simulate_oup(self,
-                     theta_1,
-                     theta_2,
-                     bin_weights_1,
-                     bin_weights_2,
-                     num_points):
-
+    def simulate_oup(self, theta_1, theta_2, bin_weights_1, bin_weights_2, num_points):
         theta_2_exp = torch.exp(theta_2)
         # noises
         dt = 0.2
         X = torch.zeros(num_points)
         X[0] = 10
 
-        w = torch.normal(0., 1., size=([num_points]))
+        w = torch.normal(0.0, 1.0, size=([num_points]))
 
         for t in range(num_points - 1):
-            mu, sigma = theta_1 * (theta_2_exp - X[t]) * dt, 0.5 * (dt ** 0.5) * w[t]
+            mu, sigma = theta_1 * (theta_2_exp - X[t]) * dt, 0.5 * (dt**0.5) * w[t]
             X[t + 1] = X[t] + mu + sigma
 
         d_index = torch.randperm(num_points)
@@ -84,7 +88,8 @@ class OUP(object):
 if __name__ == "__main__":
     import sys
     import os
-    src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+
+    src_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
     sys.path.append(src_dir)
     from dataset.sampler_utils import PriorSampler
 

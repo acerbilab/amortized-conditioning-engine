@@ -32,7 +32,7 @@ class BaseTransformer(nn.Module):
 
         Args:
             embedder (Embedder): An embedder instance to embed the input data.
-            encoder (TNPDEncoder): An encoder instance that performs the attention 
+            encoder (TNPDEncoder): An encoder instance that performs the attention
                 mechanism.
             head (TargetHead): A head instance that outputs predictions or compute
                 log-likelihoods.
@@ -58,7 +58,7 @@ class BaseTransformer(nn.Module):
             predict (bool): Whether to output predictions (True) or not (False).
             reduce_ll (bool): Whether to reduce the log-likelihood values (if
                 applicable).
-            num_samples (int): Number of samples from the head distribution (if 
+            num_samples (int): Number of samples from the head distribution (if
                 applicable).
 
         Returns:

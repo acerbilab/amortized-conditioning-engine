@@ -115,7 +115,6 @@ class OfflineOptDataGenerator:
     def _get_data(self):
         """Generate data using BayesianOptimizationDataGeneratorPrior."""
 
-
         dataset = BayesianOptimizationDataGeneratorPrior()
 
         batch_xyd, batch_xyl, latent_bin_weight = dataset.get_data(

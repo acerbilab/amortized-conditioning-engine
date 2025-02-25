@@ -245,7 +245,12 @@ class BayesianOptimizationDataGeneratorPrior:
     ) -> torch.Tensor:
         mu = torch.tensor(mu, dtype=range.dtype)
         sigma = torch.tensor(sigma, dtype=range.dtype)
-        min_val, max_val = map(lambda x: x.clone().detach() if torch.is_tensor(x) else torch.tensor(x, dtype=range.dtype), range)
+        min_val, max_val = map(
+            lambda x: x.clone().detach()
+            if torch.is_tensor(x)
+            else torch.tensor(x, dtype=range.dtype),
+            range,
+        )
         mu_log = torch.log(mu)
         min_log = torch.log(min_val)
         max_log = torch.log(max_val)

@@ -59,8 +59,10 @@ def build_mlp_with_linear_skipcon(
 
     return skip_mlp
 
+
 class AttrDict(dict):
-    """ Custom dictionary class that supports attribute-style access. """
+    """Custom dictionary class that supports attribute-style access."""
+
     def __getattr__(self, key):
         try:
             return self[key]
@@ -75,8 +77,15 @@ class AttrDict(dict):
             del self[key]
         except KeyError:
             raise AttributeError(f"'AttrDict' object has no attribute '{key}'")
-        
-def initialize_head(d_model: int, dim_feedforward: int, dim_y: int, single_head: bool, num_components: int) -> nn.Module:
+
+
+def initialize_head(
+    d_model: int,
+    dim_feedforward: int,
+    dim_y: int,
+    single_head: bool,
+    num_components: int,
+) -> nn.Module:
     """
     Initializes the model with either a single head or multiple heads based on the `single_head` flag.
 
@@ -94,7 +103,7 @@ def initialize_head(d_model: int, dim_feedforward: int, dim_y: int, single_head:
         output_dim = dim_y * 3
     else:
         output_dim = dim_y * 2
-    
+
     if single_head:
         model = nn.Sequential(
             nn.Linear(d_model, dim_feedforward),

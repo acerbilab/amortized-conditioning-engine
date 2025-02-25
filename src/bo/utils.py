@@ -1,5 +1,4 @@
 def get_mixture_params(pred, last_only=True):
-
     if last_only:
         mixture_params = {
             "means": pred.mixture_means[0, -1, :].detach().numpy(),

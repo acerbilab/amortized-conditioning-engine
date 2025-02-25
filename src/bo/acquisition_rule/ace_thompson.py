@@ -177,9 +177,7 @@ class ThompsonSamplingAcqRule:
         y_opt_samples = torch.where(
             mask_threshold,
             y_opt_samples,
-            torch.Tensor(
-                thresh
-            ),
+            torch.Tensor(thresh),
         )
 
         # do the q prunning

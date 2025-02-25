@@ -19,7 +19,7 @@ torch.autograd.set_detect_anomaly(True)
 
 
 @hydra.main(version_base=None, config_path="./cfgs", config_name="train")
-def train(cfg): 
+def train(cfg):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"What device is available: {device}")
 
@@ -37,7 +37,7 @@ def train(cfg):
             hydra_log_dir = Path(HydraConfig.get().runtime.output_dir) / ".hydra"
             wandb.save(str(hydra_log_dir), policy="now")
         except FileExistsError:
-            pass    
+            pass
 
     torch.manual_seed(cfg.seed)
     torch.cuda.manual_seed(cfg.seed)
@@ -47,18 +47,15 @@ def train(cfg):
         batch_size=cfg.batch_size,
     )
 
-
-    # make eval batch smaller to fit to memory 
+    # make eval batch smaller to fit to memory
     # total point for this eval is max_ctx_point + n_extra_point_eval
     eval_sampler = hydra.utils.instantiate(
         cfg.dataset,
-        batch_size=int(cfg.eval_batch_size/cfg.eval_split),
-        n_total_points = cfg.dataset.max_ctx_points + cfg.n_extra_point_eval
+        batch_size=int(cfg.eval_batch_size / cfg.eval_split),
+        n_total_points=cfg.dataset.max_ctx_points + cfg.n_extra_point_eval,
     )
 
-    embedder = hydra.utils.instantiate(
-        cfg.embedder
-    )
+    embedder = hydra.utils.instantiate(cfg.embedder)
 
     encoder = hydra.utils.instantiate(cfg.encoder)
     head = hydra.utils.instantiate(cfg.target_head)
@@ -102,10 +99,8 @@ def train(cfg):
             line += f"[train_loss] {train_loss:.3e}"
             logger.info(line + "\n")
 
-            
             batch_test = eval_sampler.sample()
             with torch.no_grad():
-
                 if cfg.dataset.name == "lengthscale_gp2d_2":
                     eval_loss, rmse, accuracy = eval_full(model, batch_test)
                     line = f"[eval_loss] {eval_loss:.3e} [rmse] {rmse:.3e} [accuracy] {accuracy:.3e}"
@@ -121,20 +116,20 @@ def train(cfg):
                     for _ in range(cfg.eval_split):
                         eval_loss, rmse = eval_func(model, batch_test)
                         total_eval_loss += eval_loss
-                        total_rmse +=rmse
+                        total_rmse += rmse
 
                     line = f"[eval_loss] {total_eval_loss/cfg.eval_split:.3e}"
                     logger.info(line)
-                    log_dict["eval_loss"] = total_eval_loss/cfg.eval_split
-                    log_dict["eval_rmse"] = total_rmse.item()/cfg.eval_split
+                    log_dict["eval_loss"] = total_eval_loss / cfg.eval_split
+                    log_dict["eval_rmse"] = total_rmse.item() / cfg.eval_split
                     log_dict["eval_step"] = step
 
                     if "2way" in cfg.dataset.name:
+                        latent_loss, latent_rmse, data_loss, data_rmse = eval_two_ways(
+                            cfg, model, eval_func
+                        )
 
-                        latent_loss, latent_rmse, data_loss, data_rmse = eval_two_ways(cfg, model, eval_func)
-
-                        
-                        for i,r in enumerate(latent_rmse): 
+                        for i, r in enumerate(latent_rmse):
                             log_dict[f"eval_latent_marker_{i+2}_rmse "] = r.item()
 
                         log_dict["eval_latent_loss"] = latent_loss
@@ -167,15 +162,14 @@ def save_model_checkpoint(model, optimizer, scheduler, step):
     torch.save(ckpt, checkpoint_path)
 
 
-def eval_full(model, batch): #TODO: This needs to be rewritten
+def eval_full(model, batch):  # TODO: This needs to be rewritten
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.eval()
     for key, tensor in batch.items():
         batch[key] = tensor.to(device)
     with torch.no_grad():
-        
         outs = model(batch, predict=True)
-        #pred = model(batch, predict=True)
+        # pred = model(batch, predict=True)
         masked_predictions = outs.class_pred[outs.discrete_mask]
         masked_labels = batch.yt.squeeze()[outs.discrete_mask]
 
@@ -184,13 +178,14 @@ def eval_full(model, batch): #TODO: This needs to be rewritten
 
         means = outs.mean[outs.continuous_mask.unsqueeze(-1)]
         ys = batch.yt[outs.continuous_mask.unsqueeze(-1)]
-        
+
         rmse = torch.sqrt(torch.mean((means - ys) ** 2))
 
         eval_loss = outs.loss.item()
 
         return eval_loss, rmse.item(), accuracy.item()
-    
+
+
 def eval(model, batch, split=False):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.eval()
@@ -218,50 +213,66 @@ def eval_mixture(model, batch, split=False):
         pred = model(batch, predict=True)
         eval_loss = outs.loss.item()
         if split:
-            rmse = torch.sqrt(torch.mean(torch.mean((batch.yt - pred.samples)**2,dim=-1),dim=0))
-        else :
-            rmse = torch.sqrt(torch.mean(torch.mean((batch.yt - pred.samples)**2,dim=-1)))
+            rmse = torch.sqrt(
+                torch.mean(torch.mean((batch.yt - pred.samples) ** 2, dim=-1), dim=0)
+            )
+        else:
+            rmse = torch.sqrt(
+                torch.mean(torch.mean((batch.yt - pred.samples) ** 2, dim=-1))
+            )
         return eval_loss, rmse
+
 
 def eval_two_ways(cfg, model, eval_func):
     """
     evaluating 2 task separately, predict latents and predict y
-    to speed up things n_total points is set to be max_ctx_points 
+    to speed up things n_total points is set to be max_ctx_points
     so we dont need to draw too much context
     """
-    nctx = torch.randint(max(cfg.dataset.min_ctx_points,cfg.dataset.num_latent),cfg.dataset.max_ctx_points-cfg.dataset.num_latent, (1,)).item()
+    nctx = torch.randint(
+        max(cfg.dataset.min_ctx_points, cfg.dataset.num_latent),
+        cfg.dataset.max_ctx_points - cfg.dataset.num_latent,
+        (1,),
+    ).item()
 
     # always have n_latents as targets
     eval_pred_latent_sampler = hydra.utils.instantiate(
         cfg.dataset,
-        batch_size = int(cfg.eval_batch_size/cfg.eval_split),
-        num_ctx = nctx, #this is the num of context as now it is fixed
-        n_total_points = cfg.dataset.max_ctx_points, # this is total points
+        batch_size=int(cfg.eval_batch_size / cfg.eval_split),
+        num_ctx=nctx,  # this is the num of context as now it is fixed
+        n_total_points=cfg.dataset.max_ctx_points,  # this is total points
         ctx_tar_sampler="predict_latents_fixed",
     )
-    
+
     # always have 1 data as target
     eval_pred_y_sampler = hydra.utils.instantiate(
         cfg.dataset,
-        batch_size = int(cfg.eval_batch_size/cfg.eval_split),
-        num_ctx = nctx, #this is the num of context as now it is fixed
-        n_total_points = cfg.dataset.max_ctx_points, # this is total points
+        batch_size=int(cfg.eval_batch_size / cfg.eval_split),
+        num_ctx=nctx,  # this is the num of context as now it is fixed
+        n_total_points=cfg.dataset.max_ctx_points,  # this is total points
         ctx_tar_sampler="predict_y_fixed",
     )
 
     total_l_loss, total_l_rmse, total_d_loss, total_d_rmse = 0.0, 0.0, 0.0, 0.0
     for _ in range(cfg.eval_split):
-        latent_loss, latent_rmse = eval_func(model, eval_pred_latent_sampler.sample(), split=True)
+        latent_loss, latent_rmse = eval_func(
+            model, eval_pred_latent_sampler.sample(), split=True
+        )
         data_loss, data_rmse = eval_func(model, eval_pred_y_sampler.sample())
         total_l_loss += latent_loss
         total_l_rmse += latent_rmse
         total_d_loss += data_loss
         total_d_rmse += data_rmse
 
-    return total_l_loss/cfg.eval_split, total_l_rmse/cfg.eval_split, total_d_loss/cfg.eval_split, total_d_rmse/cfg.eval_split
+    return (
+        total_l_loss / cfg.eval_split,
+        total_l_rmse / cfg.eval_split,
+        total_d_loss / cfg.eval_split,
+        total_d_rmse / cfg.eval_split,
+    )
+
 
 if __name__ == "__main__":
-
     try:
         train()
     except Exception as e:
