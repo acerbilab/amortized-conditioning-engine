@@ -8,8 +8,8 @@ from torch.distributions.bernoulli import Bernoulli
 
 GRID_SIZE = 500
 
-class GPND2WayManyKernels:
 
+class GPND2WayManyKernels:
     def __init__(
         self,
         kernel_list=["matern12", "matern32", "matern52", "rbf"],
@@ -17,7 +17,7 @@ class GPND2WayManyKernels:
         lengthscale_range=[0.05, 2],
         std_range=[0.1, 2],
         p_iso=0.5,
-        predict_kernel= False
+        predict_kernel=False,
     ):
         if isinstance(kernel_list, list):
             self.kernel_list = kernel_list
@@ -80,7 +80,7 @@ class GPND2WayManyKernels:
 
         # Sample y values for the fixed context points using the GP prior sampler
         yd = gp_sampler.sample(
-            xd, length_scale=length_scales, sigma_f= sigma_f, mean_f=mean_function
+            xd, length_scale=length_scales, sigma_f=sigma_f, mean_f=mean_function
         )  # [n_ctx_points, 1]
 
         # Prepare latent variable data with markers
@@ -133,8 +133,8 @@ class GPND2WayManyKernels:
 
         return batch_xyd, batch_xyl
 
-class GPND2WayManyKernelsFast:
 
+class GPND2WayManyKernelsFast:
     def __init__(
         self,
         kernel_list=["matern12", "matern32", "matern52", "rbf"],
@@ -142,8 +142,8 @@ class GPND2WayManyKernelsFast:
         lengthscale_range=[0.05, 2],
         std_range=[0.1, 2],
         p_iso=0.5,
-        predict_kernel= False,
-        corrupt = None,
+        predict_kernel=False,
+        corrupt=None,
     ):
         if isinstance(kernel_list, list):
             self.kernel_list = kernel_list
@@ -200,16 +200,17 @@ class GPND2WayManyKernelsFast:
 
         # Select a random kernel from the kernel dictionary with associated weights
         ind = torch.multinomial(self.kernel_sample_weight, 1).item()
-        kernel = KERNEL_DICT[
-            self.kernel_list[ind]
-        ]
+        kernel = KERNEL_DICT[self.kernel_list[ind]]
 
         # Define a GP sampler with the selected kernel
         gp_sampler = SampleGP(kernel, jitter=1e-5)
 
         # Sample y values for the fixed context points using the GP prior sampler
         yd_fixed = gp_sampler.sample(
-            xd_fixed, length_scale=length_scales, sigma_f= sigma_f, mean_f=torch.zeros_like(mean_function)
+            xd_fixed,
+            length_scale=length_scales,
+            sigma_f=sigma_f,
+            mean_f=torch.zeros_like(mean_function),
         )  # [n_ctx_points, 1]
 
         # Sample additional independent points
@@ -233,15 +234,14 @@ class GPND2WayManyKernelsFast:
 
         # Prepare latent variable data with markers
         if self.predict_kernel:
-            ind =  torch.tensor(ind).int()[None]
-            #print('kernel_index', ind)
+            ind = torch.tensor(ind).int()[None]
+            # print('kernel_index', ind)
             yl = torch.cat(
-                [length_scales[:, None], sigma_f[:, None], torch.tensor(ind)[:, None]], dim=0
+                [length_scales[:, None], sigma_f[:, None], torch.tensor(ind)[:, None]],
+                dim=0,
             )
         else:
-            yl = torch.cat(
-                [length_scales[:, None], sigma_f[:, None]], dim=0
-            )
+            yl = torch.cat([length_scales[:, None], sigma_f[:, None]], dim=0)
 
         xl = torch.zeros([yl.shape[0], xd.shape[-1]])
 
@@ -254,16 +254,18 @@ class GPND2WayManyKernelsFast:
         latent_marker = torch.arange(2, 2 + num_latent)[
             :, None
         ]  # 1st latent marker = 2, second latent marker = 3, kth latent marker = 2+k
-        
+
         xyl = torch.concat((latent_marker, xl, yl), dim=-1)  # [Nl, 1+Dxl+Dyl]
 
         if isinstance(self.corrupt, float):
             num_latent = len(x_range[0]) + 1 + 1
-            latent_marker = torch.arange(2, 2 + num_latent)[
-            :, None
+            latent_marker = torch.arange(
+                2, 2 + num_latent
+            )[
+                :, None
             ]  # 1st latent marker = 2, second latent marker = 3, kth latent marker = 2+k
-            xl = torch.zeros([yl.shape[0]+1, xd.shape[-1]])
-            xyd_transformed = (xyd[:,-1] > 0).int()
+            xl = torch.zeros([yl.shape[0] + 1, xd.shape[-1]])
+            xyd_transformed = (xyd[:, -1] > 0).int()
             p = self.corrupt * torch.rand((1))
             n_corrupt = torch.round(n_ctx_points * p).int()
             # Generate random coin flips (0 or 1) for the first n_corrupt elements
@@ -272,13 +274,12 @@ class GPND2WayManyKernelsFast:
             for i in range(n_corrupt):
                 if coin_flips[i] == 1:
                     xyd_transformed[i] = 1 - xyd_transformed[i]  # Flip the label
-            
-            xyd[:,-1] = xyd_transformed #THIS IS CHAOS
+
+            xyd[:, -1] = xyd_transformed  # THIS IS CHAOS
 
             p = p.view(1, 1)
-            yl = torch.cat([yl, p],dim=0)
+            yl = torch.cat([yl, p], dim=0)
             xyl = torch.concat((latent_marker, xl, yl), dim=-1)  # [Nl, 1+Dxl+Dyl]
-            
 
         return xyd, xyl
 
@@ -312,25 +313,27 @@ class GPND2WayManyKernelsFast:
         )  # [B, Nc, 3]
 
         return batch_xyd, batch_xyl
-    
+
+
 if __name__ == "__main__":
     import numpy as np
     import matplotlib.pyplot as plt
-    torch.manual_seed(0) # Set the seed for reproducibility
-    np.random.seed(0)
-    dataset =  GPND2WayManyKernelsFast()
-    points, latent = dataset.sample_a_function(500, 200, [[-1,-1],[1, 1]], "cpu")
 
-    x = points[:,1]
-    y = points[:,2]
-    z = points[:,3]
+    torch.manual_seed(0)  # Set the seed for reproducibility
+    np.random.seed(0)
+    dataset = GPND2WayManyKernelsFast()
+    points, latent = dataset.sample_a_function(500, 200, [[-1, -1], [1, 1]], "cpu")
+
+    x = points[:, 1]
+    y = points[:, 2]
+    z = points[:, 3]
 
     # Plot the 3D data points
     fig = plt.figure(figsize=(8, 6))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.scatter(x, y, z, c='b', alpha=0.5)  # Scatter plot of the 3D data points
-    ax.set_title(f'GP with lengthscale {latent[:,-1]}')
-    ax.set_xlabel('X-axis')
-    ax.set_ylabel('Y-axis')
-    ax.set_zlabel('Z-axis')
+    ax = fig.add_subplot(111, projection="3d")
+    ax.scatter(x, y, z, c="b", alpha=0.5)  # Scatter plot of the 3D data points
+    ax.set_title(f"GP with lengthscale {latent[:,-1]}")
+    ax.set_xlabel("X-axis")
+    ax.set_ylabel("Y-axis")
+    ax.set_zlabel("Z-axis")
     plt.show()

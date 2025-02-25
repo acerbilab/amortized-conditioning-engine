@@ -16,9 +16,8 @@ class GaussianHead(nn.Module):
         name: Optional[str] = None,
         bound_std: bool = True,
         std_min: float = 1e-3,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
-
         super().__init__()
         self.bound_std = bound_std
         self.std_min = std_min
@@ -29,10 +28,19 @@ class GaussianHead(nn.Module):
             nn.Linear(dim_feedforward, dim_y * 2),
         )
 
-    def forward(self, batch: Any, z_target: torch.Tensor, reduce_ll: bool = True, predict: bool = False, num_samples: int = 0) -> AttrDict:
+    def forward(
+        self,
+        batch: Any,
+        z_target: torch.Tensor,
+        reduce_ll: bool = True,
+        predict: bool = False,
+        num_samples: int = 0,
+    ) -> AttrDict:
         out = self.predictor(z_target)
         mean, raw_std = torch.chunk(out, 2, dim=-1)
-        std = self.std_min + F.softplus(raw_std) if self.bound_std else torch.exp(raw_std)
+        std = (
+            self.std_min + F.softplus(raw_std) if self.bound_std else torch.exp(raw_std)
+        )
 
         pred_tar = Normal(mean, std)
         outs = AttrDict()
@@ -41,10 +49,13 @@ class GaussianHead(nn.Module):
             outs.scale = std
             outs.samples = pred_tar.sample((num_samples,)).movedim(0, 2)
         else:
-            outs.tar_ll = pred_tar.log_prob(batch.yt).sum(-1).mean() if reduce_ll else pred_tar.log_prob(batch.yt).sum(-1)
+            outs.tar_ll = (
+                pred_tar.log_prob(batch.yt).sum(-1).mean()
+                if reduce_ll
+                else pred_tar.log_prob(batch.yt).sum(-1)
+            )
             outs.loss = -(outs.tar_ll)
         return outs
-
 
 
 class MixtureGaussian(nn.Module):
@@ -63,7 +74,6 @@ class MixtureGaussian(nn.Module):
         discrete_index: Optional[List[int]] = None,
         bias_init: bool = True,
     ) -> None:
-
         super().__init__()
         self.name = name
         self.d_model = d_model
@@ -79,7 +89,9 @@ class MixtureGaussian(nn.Module):
                 nn.Linear(self.dim_feedforward, len(discrete_index) * self.dim_y),
             )
 
-        self.heads = initialize_head(d_model, dim_feedforward, dim_y, single_head, num_components)
+        self.heads = initialize_head(
+            d_model, dim_feedforward, dim_y, single_head, num_components
+        )
         self.num_components = num_components
 
         if trange is None:
@@ -105,7 +117,14 @@ class MixtureGaussian(nn.Module):
         self.loss_data_weight = loss_data_weight
         self.loss_latent_weight = loss_latent_weight
 
-    def forward(self, batch: AttrDict, z_target: torch.Tensor, reduce_ll: bool = True, predict: bool = False, num_samples: int = 1000) -> AttrDict:
+    def forward(
+        self,
+        batch: AttrDict,
+        z_target: torch.Tensor,
+        reduce_ll: bool = True,
+        predict: bool = False,
+        num_samples: int = 1000,
+    ) -> AttrDict:
         # Iterate over each head to get their outputs
         if self.single_head:
             output = self.heads(z_target)
@@ -115,9 +134,10 @@ class MixtureGaussian(nn.Module):
             else:
                 raw_mean, raw_std, raw_weights = torch.chunk(output, 3, dim=-1)
         else:
-            outputs = [head(z_target) for head in self.heads]  # list of [B, T, dim_y * 3] * components
+            outputs = [
+                head(z_target) for head in self.heads
+            ]  # list of [B, T, dim_y * 3] * components
             raw_mean, raw_std, raw_weights = self._map_raw_output(outputs)
-
 
         # Adding bias terms
         mean, std, weights = self.add_bias(raw_mean, raw_std, raw_weights)
@@ -127,8 +147,8 @@ class MixtureGaussian(nn.Module):
         if self.discrete_index:
             output_d = self.class_head(z_target)
             continuous_mask, discrete_mask = self.build_mask(
-            batch
-        )  # Mask [batch, num_target]
+                batch
+            )  # Mask [batch, num_target]
             # Compute discrete loss inputs
             output_permuted, discrete_labels, filtered_output_d = self._discrete(
                 batch, output_d, discrete_mask
@@ -155,7 +175,9 @@ class MixtureGaussian(nn.Module):
         outs = AttrDict()
 
         if predict:
-            samples, median, q1, q3 = self.predict_out(mean, std, weights, batch, num_samples)
+            samples, median, q1, q3 = self.predict_out(
+                mean, std, weights, batch, num_samples
+            )
             outs.samples = samples
             # [BxT, num_samples] -> [B, T, 1]
             outs.mean = samples.mean(dim=2, keepdim=True)  # sample mean
@@ -170,7 +192,11 @@ class MixtureGaussian(nn.Module):
 
             if self.discrete_index:
                 outs.logits = filtered_output_d
-                outs.class_pred = torch.argmax(filtered_output_d * (discrete_mask.unsqueeze(-1).expand(filtered_output_d.shape)), dim=-1)
+                outs.class_pred = torch.argmax(
+                    filtered_output_d
+                    * (discrete_mask.unsqueeze(-1).expand(filtered_output_d.shape)),
+                    dim=-1,
+                )
                 outs.discrete_mask = discrete_mask
                 outs.continuous_mask = continuous_mask
 
@@ -180,11 +206,13 @@ class MixtureGaussian(nn.Module):
         outs.tar_ll = tar_ll  # log-likelihood
         return outs
 
-    def add_bias(self, raw_mean: torch.Tensor, raw_std: torch.Tensor, raw_weights: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def add_bias(
+        self, raw_mean: torch.Tensor, raw_std: torch.Tensor, raw_weights: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         if self.bias_init:
             mean = raw_mean + self.mean_global_bias
             std = F.softplus(raw_std + self.std_global_bias) + self.std_min
-            #std = torch.maximum(std, torch.tensor(0.1)) # needed for image
+            # std = torch.maximum(std, torch.tensor(0.1)) # needed for image
             weights = F.softmax(raw_weights + self.weights_global_bias, dim=-1)
         else:
             mean = raw_mean
@@ -192,9 +220,13 @@ class MixtureGaussian(nn.Module):
             weights = F.softmax(raw_weights, dim=-1)
         return mean, std, weights
 
-
     @staticmethod
-    def compute_ll(value: torch.Tensor, means: torch.Tensor, stds: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
+    def compute_ll(
+        value: torch.Tensor,
+        means: torch.Tensor,
+        stds: torch.Tensor,
+        weights: torch.Tensor,
+    ) -> torch.Tensor:
         """
         Computes log-likelihood loss for a Gaussian mixture model.
 
@@ -212,17 +244,24 @@ class MixtureGaussian(nn.Module):
         weighted_log_probs = log_probs + torch.log(weights)
         return torch.logsumexp(weighted_log_probs, dim=-1)
 
-    def predict_out(self, mean: torch.Tensor, std: torch.Tensor, weights: torch.Tensor, batch: Any, num_samples: int = 1000) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def predict_out(
+        self,
+        mean: torch.Tensor,
+        std: torch.Tensor,
+        weights: torch.Tensor,
+        batch: Any,
+        num_samples: int = 1000,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         samples_flattened = sample(
-                mean.view(-1, self.num_components),
-                std.view(-1, self.num_components),
-                weights.view(-1, self.num_components),
-                num_sample=num_samples,
-            )  # [BxT, num_samples]
+            mean.view(-1, self.num_components),
+            std.view(-1, self.num_components),
+            weights.view(-1, self.num_components),
+            num_sample=num_samples,
+        )  # [BxT, num_samples]
 
         samples = samples_flattened.view(
-                batch.yt.shape[0], batch.yt.shape[1], num_samples
-            )  # [BxT, num_samples] -> [B, T, num_samples]
+            batch.yt.shape[0], batch.yt.shape[1], num_samples
+        )  # [BxT, num_samples] -> [B, T, num_samples]
 
         # Calculate the quantiles
         q1 = torch.quantile(samples, 0.25, dim=-1)
@@ -232,13 +271,21 @@ class MixtureGaussian(nn.Module):
         return samples, median, q1, q3
 
     @staticmethod
-    def _map_raw_output(outputs: List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        concatenated = torch.stack(outputs).movedim(0, -1).flatten(-2, -1) # [B, T, dim_y * 3 * components]
-        raw_mean, raw_std, raw_weights = torch.chunk(concatenated, 3, dim=-1) # 3 x [B, T, components]
+    def _map_raw_output(
+        outputs: List[torch.Tensor],
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        concatenated = (
+            torch.stack(outputs).movedim(0, -1).flatten(-2, -1)
+        )  # [B, T, dim_y * 3 * components]
+        raw_mean, raw_std, raw_weights = torch.chunk(
+            concatenated, 3, dim=-1
+        )  # 3 x [B, T, components]
         return raw_mean, raw_std, raw_weights
 
     @staticmethod
-    def _discrete(batch: Any, output_d: torch.Tensor, discrete_mask: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def _discrete(
+        batch: Any, output_d: torch.Tensor, discrete_mask: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Applies a discrete mask to the model's output tensors and modifies their dimensions to prepare
         for cross-entropy loss computation.
@@ -282,8 +329,13 @@ class MixtureGaussian(nn.Module):
         # continuous_mask = continuous_mask.expand(batch.xte.shape[0], batch.xte.shape[1], components)
         return continuous_mask.squeeze(-1), mask_discrete.squeeze(-1)
 
+
 def sample(
-    means: torch.Tensor, stds: torch.Tensor, weights: torch.Tensor, num_sample: int = 1000) -> torch.Tensor:
+    means: torch.Tensor,
+    stds: torch.Tensor,
+    weights: torch.Tensor,
+    num_sample: int = 1000,
+) -> torch.Tensor:
     # TODO: swap out with pytorch inbuilt torch.distributions.mixture_same_family.MixtureSameFamily
     # Sample component indices for each batch
 
@@ -310,9 +362,9 @@ def sample(
 
     return samples.t()
 
+
 def inverse_softplus(y: torch.Tensor) -> torch.Tensor:
     return torch.log(torch.special.expm1(y))
 
+
 # if __name__ == "__main__":
-
-

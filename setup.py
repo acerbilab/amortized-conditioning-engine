@@ -16,6 +16,6 @@ setup(
         "attrdict==2.0.1",
         "hydra-submitit-launcher==1.2.0",
         "seaborn==0.13.2",
-        "sbi==0.22.0"
+        "sbi==0.22.0",
     ],
 )

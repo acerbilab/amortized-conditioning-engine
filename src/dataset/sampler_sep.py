@@ -60,7 +60,7 @@ class Sampler(object):
         if torch.bernoulli(torch.tensor([self.p])):  # decide if latents in context
             if num_latent > 1:
                 # decide num latents in context
-                num_latent_ctx = torch.randint(1, num_latent+1, size=[1])
+                num_latent_ctx = torch.randint(1, num_latent + 1, size=[1])
                 # random order
                 order = torch.argsort(torch.rand((batch_size, num_latent)), dim=-1)
                 order = order.unsqueeze(-1).repeat((1, 1, feature_dim))
@@ -85,7 +85,9 @@ class Sampler(object):
                 - yt: Target labels (batch_size, num_tar + num_latent_tar, 1).
         """
         # sample data and latents
-        num_ctx = self.num_ctx or torch.randint(low=self.min_num_points, high=self.max_num_points+1, size=[1])
+        num_ctx = self.num_ctx or torch.randint(
+            low=self.min_num_points, high=self.max_num_points + 1, size=[1]
+        )
         num_tot = num_ctx + self.num_tar
         batch_xyd, batch_xyl = self.problem.get_data(
             self.batch_size,
@@ -107,7 +109,7 @@ class Sampler(object):
         else:
             xyc = ctx_data
             xyt = tar_data
-        
+
         batch = AttrDict()
         batch.xc = xyc[:, :, :-1]  # bs x nc x (x dim + marker dim)
         batch.yc = xyc[:, :, -1:]  # bs x nc x 1

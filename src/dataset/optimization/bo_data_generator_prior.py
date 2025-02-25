@@ -56,7 +56,7 @@ class BayesianOptimizationDataGeneratorPrior:
         self.kernel_sample_weight = torch.tensor(kernel_sample_weight)
 
         self.mean_prior_xopt = Uniform(-1 * torch.ones(1), 1 * torch.ones(1))
-        self.std_prior_xopt = Uniform(0.01 * torch.ones(1), 1. * torch.ones(1))
+        self.std_prior_xopt = Uniform(0.01 * torch.ones(1), 1.0 * torch.ones(1))
 
     def sample_a_function(
         self,
@@ -245,8 +245,12 @@ class BayesianOptimizationDataGeneratorPrior:
     ) -> torch.Tensor:
         mu = torch.tensor(mu, dtype=range.dtype)
         sigma = torch.tensor(sigma, dtype=range.dtype)
-        min_val, max_val = map(lambda x: torch.tensor(x, dtype=range.dtype), range)
-
+        min_val, max_val = map(
+            lambda x: x.clone().detach()
+            if torch.is_tensor(x)
+            else torch.tensor(x, dtype=range.dtype),
+            range,
+        )
         mu_log = torch.log(mu)
         min_log = torch.log(min_val)
         max_log = torch.log(max_val)
@@ -275,6 +279,7 @@ class BayesianOptimizationDataGeneratorPrior:
         x_range: List[List[float]],
         num_bins: int = 100,
         device: Union[torch.device, str] = "cpu",
+        prior_type="unif_mixture",  # can be "mixture" or "uniform"
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Generate a batch of sampled functions and their data points.
@@ -316,7 +321,7 @@ class BayesianOptimizationDataGeneratorPrior:
             xopt_i_list = []
             bin_weights_xopt_i_list = []
             for i in range(xdim):
-                bin_weights_xopt_i = xopt_i_sampler.sample_bin_weights("unif_mixture", 1.0)
+                bin_weights_xopt_i = xopt_i_sampler.sample_bin_weights(prior_type, 1.0)
                 bin_weights_xopt_i_list.append(bin_weights_xopt_i)
                 xopt_i = xopt_i_sampler.sample_theta_from_bin_distribution(
                     bin_weights_xopt_i

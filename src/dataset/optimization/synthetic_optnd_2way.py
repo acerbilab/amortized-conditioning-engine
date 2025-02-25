@@ -261,7 +261,6 @@ class OptimizationGPND2WayManyKernelsFast:
 
 
 if __name__ == "__main__":
-
     import matplotlib.pyplot as plt
     import numpy as np
     from scipy.interpolate import griddata

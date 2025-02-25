@@ -11,54 +11,55 @@ from scipy import stats
 def update_plot_style():
     import matplotlib.pyplot as plt
     import matplotlib
-    matplotlib.rcParams.update({
-        'font.family': 'times',
-        'font.size': 14.0,
-        'lines.linewidth': 2,
-        'lines.antialiased': True,
-        'axes.facecolor': 'fdfdfd',
-        'axes.edgecolor': '777777',
-        'axes.linewidth': 1,
-        'axes.titlesize': 'medium',
-        'axes.labelsize': 'medium',
-        'axes.axisbelow': True,
-        'xtick.major.size': 0,  # major tick size in points
-        'xtick.minor.size': 0,  # minor tick size in points
-        'xtick.major.pad': 6,  # distance to major tick label in points
-        'xtick.minor.pad': 6,  # distance to the minor tick label in points
-        'xtick.color': '333333',  # color of the tick labels
-        'xtick.labelsize': 'medium',  # fontsize of the tick labels
-        'xtick.direction': 'in',  # direction: in or out
-        'ytick.major.size': 0,  # major tick size in points
-        'ytick.minor.size': 0,  # minor tick size in points
-        'ytick.major.pad': 6,  # distance to major tick label in points
-        'ytick.minor.pad': 6,  # distance to the minor tick label in points
-        'ytick.color': '333333',  # color of the tick labels
-        'ytick.labelsize': 'medium',  # fontsize of the tick labels
-        'ytick.direction': 'in',  # direction: in or out
-        'axes.grid': False,
-        'grid.alpha': 0.3,
-        'grid.linewidth': 1,
-        'legend.fancybox': True,
-        'legend.fontsize': 'Small',
-        'figure.figsize': (2.5, 2.5),
-        'figure.facecolor': '1.0',
-        'figure.edgecolor': '0.5',
-        'hatch.linewidth': 0.1,
-        'text.usetex': True
-    })
 
-    plt.rcParams['text.latex.preamble'] = r'\usepackage{times}'
+    matplotlib.rcParams.update(
+        {
+            "font.family": "times",
+            "font.size": 14.0,
+            "lines.linewidth": 2,
+            "lines.antialiased": True,
+            "axes.facecolor": "fdfdfd",
+            "axes.edgecolor": "777777",
+            "axes.linewidth": 1,
+            "axes.titlesize": "medium",
+            "axes.labelsize": "medium",
+            "axes.axisbelow": True,
+            "xtick.major.size": 0,  # major tick size in points
+            "xtick.minor.size": 0,  # minor tick size in points
+            "xtick.major.pad": 6,  # distance to major tick label in points
+            "xtick.minor.pad": 6,  # distance to the minor tick label in points
+            "xtick.color": "333333",  # color of the tick labels
+            "xtick.labelsize": "medium",  # fontsize of the tick labels
+            "xtick.direction": "in",  # direction: in or out
+            "ytick.major.size": 0,  # major tick size in points
+            "ytick.minor.size": 0,  # minor tick size in points
+            "ytick.major.pad": 6,  # distance to major tick label in points
+            "ytick.minor.pad": 6,  # distance to the minor tick label in points
+            "ytick.color": "333333",  # color of the tick labels
+            "ytick.labelsize": "medium",  # fontsize of the tick labels
+            "ytick.direction": "in",  # direction: in or out
+            "axes.grid": False,
+            "grid.alpha": 0.3,
+            "grid.linewidth": 1,
+            "legend.fancybox": True,
+            "legend.fontsize": "Small",
+            "figure.figsize": (2.5, 2.5),
+            "figure.facecolor": "1.0",
+            "figure.edgecolor": "0.5",
+            "hatch.linewidth": 0.1,
+            "text.usetex": True,
+        }
+    )
+
+    plt.rcParams["text.latex.preamble"] = r"\usepackage{times}"
 
 
-def load_config_and_model(
-    path, config_name="config.yaml", ckpt_name="ckpt.tar"
-):
+def load_config_and_model(path, config_name="config.yaml", ckpt_name="ckpt.tar"):
     """
     Loads configuration and model from a specified path. Instantiates the model components
     (embedder, encoder, and head) based on the configuration, and loads the model's checkpoint.
     """
-    config_path = path+".hydra/"
+    config_path = path + ".hydra/"
     with initialize(version_base=None, config_path=config_path):
         cfg = compose(config_name=config_name)
 
@@ -94,7 +95,7 @@ def RMSE(gt, samples):
     Computes the Root Mean Squared Error (RMSE) between the ground truth and a set of samples.
     """
     gt = gt.expand(-1, -1, samples.shape[-1])
-    dist = torch.sqrt(torch.mean((gt-samples)**2))
+    dist = torch.sqrt(torch.mean((gt - samples) ** 2))
     return dist
 
 
@@ -107,7 +108,15 @@ def get_coverage_probs(z, u):
     gamma = 2 * np.min(np.min(np.stack([bin1, 1 - bin2], axis=-1), axis=-1), axis=-1)
     return gamma
 
-def simultaneous_ecdf_bands(num_samples, num_points=None, num_simulations=1000, confidence=0.95, eps=1e-5, max_num_points=1000):
+
+def simultaneous_ecdf_bands(
+    num_samples,
+    num_points=None,
+    num_simulations=1000,
+    confidence=0.95,
+    eps=1e-5,
+    max_num_points=1000,
+):
     """Computes the simultaneous ECDF bands through simulation according to the algorithm described."""
     N = num_samples
     if num_points is None:
@@ -127,7 +136,10 @@ def simultaneous_ecdf_bands(num_samples, num_points=None, num_simulations=1000, 
     U = stats.binom(N, z).ppf(1 - gamma / 2) / N
     return alpha, z, L, U
 
-def plot_sbc_ecdf_diff(ax, theta_prior, theta_posterior, theta_posterior_pi, num_points=20):
+
+def plot_sbc_ecdf_diff(
+    ax, theta_prior, theta_posterior, theta_posterior_pi, num_points=20
+):
     """
     Plot the ECDF difference for Simulation-Based Calibration (SBC).
 
@@ -158,7 +170,9 @@ def plot_sbc_ecdf_diff(ax, theta_prior, theta_posterior, theta_posterior_pi, num
     ecdf = np.arange(1, num_samples + 1) / num_samples
 
     # Calculate the difference between ECDF and the uniform distribution
-    uniform_cdf = sorted_ranks  # In uniform distribution, CDF is the same as the rank values
+    uniform_cdf = (
+        sorted_ranks  # In uniform distribution, CDF is the same as the rank values
+    )
     uniform_cdf_pi = sorted_ranks_pi
     ecdf_diff = ecdf - uniform_cdf
     ecdf_diff_pi = ecdf - uniform_cdf_pi
@@ -170,19 +184,26 @@ def plot_sbc_ecdf_diff(ax, theta_prior, theta_posterior, theta_posterior_pi, num
     ecdf_diff_interpolated = np.interp(x_points, sorted_ranks, ecdf_diff)
     ecdf_diff_interpolated_pi = np.interp(x_points, sorted_ranks_pi, ecdf_diff_pi)
 
-    _, z, L, U = simultaneous_ecdf_bands(num_samples=num_samples, num_points=num_points, num_simulations=1000, confidence=0.95)
+    _, z, L, U = simultaneous_ecdf_bands(
+        num_samples=num_samples,
+        num_points=num_points,
+        num_simulations=1000,
+        confidence=0.95,
+    )
 
     L -= z
     U -= z
 
     # Plot the ECDF difference curve
-    ax.plot(x_points, ecdf_diff_interpolated, color='purple', label='ACE', linewidth=3)
-    ax.plot(x_points, ecdf_diff_interpolated_pi, color='green', label='ACEP', linewidth=3)
+    ax.plot(x_points, ecdf_diff_interpolated, color="purple", label="ACE", linewidth=3)
+    ax.plot(
+        x_points, ecdf_diff_interpolated_pi, color="green", label="ACEP", linewidth=3
+    )
     ax.set_ylim(-0.12, 0.12)
 
-    ax.fill_between(z, L, U, color='gray', alpha=0.3)
+    ax.fill_between(z, L, U, color="gray", alpha=0.3)
 
-    ax.set_xlabel('Fractional Rank', fontsize=18)
+    ax.set_xlabel("Fractional Rank", fontsize=18)
 
 
 def plot_sbc_ecdf_diff_no_pi(ax, theta_prior, theta_posterior, num_points=20):
@@ -211,7 +232,9 @@ def plot_sbc_ecdf_diff_no_pi(ax, theta_prior, theta_posterior, num_points=20):
     ecdf = np.arange(1, num_samples + 1) / num_samples
 
     # Calculate the difference between ECDF and the uniform distribution
-    uniform_cdf = sorted_ranks  # In uniform distribution, CDF is the same as the rank values
+    uniform_cdf = (
+        sorted_ranks  # In uniform distribution, CDF is the same as the rank values
+    )
 
     ecdf_diff = ecdf - uniform_cdf
 
@@ -221,15 +244,20 @@ def plot_sbc_ecdf_diff_no_pi(ax, theta_prior, theta_posterior, num_points=20):
     # Interpolate ECDF difference for these x_points
     ecdf_diff_interpolated = np.interp(x_points, sorted_ranks, ecdf_diff)
 
-    _, z, L, U = simultaneous_ecdf_bands(num_samples=num_samples, num_points=num_points, num_simulations=1000, confidence=0.95)
+    _, z, L, U = simultaneous_ecdf_bands(
+        num_samples=num_samples,
+        num_points=num_points,
+        num_simulations=1000,
+        confidence=0.95,
+    )
 
     L -= z
     U -= z
 
     # Plot the ECDF difference curve
-    ax.plot(x_points, ecdf_diff_interpolated, color='purple', label='ACE', linewidth=3)
+    ax.plot(x_points, ecdf_diff_interpolated, color="purple", label="ACE", linewidth=3)
     ax.set_ylim(-0.07, 0.07)
 
-    ax.fill_between(z, L, U, color='gray', alpha=0.3)
+    ax.fill_between(z, L, U, color="gray", alpha=0.3)
 
-    ax.set_xlabel('Fractional Rank', fontsize=18)
+    ax.set_xlabel("Fractional Rank", fontsize=18)

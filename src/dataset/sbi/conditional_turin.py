@@ -79,7 +79,6 @@ class ConditionalTurin(object):
         mu_poisson = lambda_0 * t_max  # Mean of Poisson process
 
         for jR in range(nRx):
-
             n_points = int(
                 torch.poisson(mu_poisson)
             )  # Number of delay points sampled from Poisson process

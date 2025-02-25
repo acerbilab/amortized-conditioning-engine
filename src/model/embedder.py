@@ -468,7 +468,9 @@ class EmbedderMarkerPriorInjectionBin(nn.Module):
         else:
             self.embedderx = build_mlp(dim_xc - 1, dim_hid, dim_out, emb_depth)  # f_cov
             self.embedderyc = build_mlp(dim_yc, dim_hid, dim_out, emb_depth)  # f_val
-            self.embedderbin = build_mlp(num_bins, dim_hid, dim_out, emb_depth)  # for bin weights
+            self.embedderbin = build_mlp(
+                num_bins, dim_hid, dim_out, emb_depth
+            )  # for bin weights
 
         self.name = name
         # positional embedding initialization
@@ -486,10 +488,14 @@ class EmbedderMarkerPriorInjectionBin(nn.Module):
         embedding_yc_known = self.embedderyc(batch.yc_latent_known)  # [B, known, D]
 
         # unknown latent embedding
-        embedding_yc_unknown = self.embedderbin(batch.bins_latent_unknown)  # [B, unknown, D]
+        embedding_yc_unknown = self.embedderbin(
+            batch.bins_latent_unknown
+        )  # [B, unknown, D]
 
         # concat latent embedding
-        embedding_yc_latent = torch.cat((embedding_yc_known, embedding_yc_unknown), dim=1)  # [B, Nl, D]
+        embedding_yc_latent = torch.cat(
+            (embedding_yc_known, embedding_yc_unknown), dim=1
+        )  # [B, Nl, D]
 
         embedding_data = torch.add(embedding_xc_data, embedding_yc_data)
         # embedding_latent = torch.add(embedding_yc_latent_mean, embedding_yc_latent_std)

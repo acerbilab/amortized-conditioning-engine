@@ -11,14 +11,15 @@ class SIR_base(object):
     For more information, see:
     https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model
     """
+
     def __init__(
-            self,
-            obs_points=25,
-            steps=10,
-            obs_type='prevalence',
-            norm=True,
-            forecast_prop=0,
-            n_sim=None,
+        self,
+        obs_points=25,
+        steps=10,
+        obs_type="prevalence",
+        norm=True,
+        forecast_prop=0,
+        n_sim=None,
     ):
         """
         Initialize the SIR dataset sampler.
@@ -32,7 +33,7 @@ class SIR_base(object):
             n_sim (int): Total simulation count. If None, new simulations are run for each sample.
         """
         self.num_params = 4
-        self.param_names = ['beta', 'gamma', 'phi', 'init_prop']
+        self.param_names = ["beta", "gamma", "phi", "init_prop"]
         # normalised parameter values: U(-1 , 1)
         self.params_dist = Uniform(-1, 1)
         # actual parameter values: U(min, max)
@@ -65,7 +66,9 @@ class SIR_base(object):
             norppa = self.params_dist.sample((self.n_sim, self.num_params))
             self.params_pool = norppa.unsqueeze(-1)
             params = self.norppa2params(norppa)  # params between (min, max)
-            self.obs_pool = self.simulate(params, batch_size=self.n_sim)  # simulated data
+            self.obs_pool = self.simulate(
+                params, batch_size=self.n_sim
+            )  # simulated data
 
     def obs2nor(self, obs):
         """
@@ -89,7 +92,7 @@ class SIR_base(object):
         Returns:
             torch.Tensor: Observations in simulator output scale.
         """
-        return (nor * self.obs_scale + self.obs_mean)**2
+        return (nor * self.obs_scale + self.obs_mean) ** 2
 
     def params2norppa(self, params):
         """
@@ -102,7 +105,7 @@ class SIR_base(object):
             torch.Tensor: Normalized parameters.
         """
         params_range = self.params_max - self.params_min
-        params_mean = self.params_min + params_range/2
+        params_mean = self.params_min + params_range / 2
         return 2 * (params - params_mean) / params_range
 
     def norppa2params(self, norppa):
@@ -116,7 +119,7 @@ class SIR_base(object):
             torch.Tensor: Parameters in simulator scale.
         """
         params_range = self.params_max - self.params_min
-        params_mean = self.params_min + params_range/2
+        params_mean = self.params_min + params_range / 2
         return params_range * norppa / 2 + params_mean
 
     def simulate_sir(self, beta, gamma, N, I0, batch_size=1):
@@ -139,7 +142,7 @@ class SIR_base(object):
         """
         # initial condition
         I0 = I0.reshape(-1)  # ensure at least 1d
-        S = [N-I0]
+        S = [N - I0]
         I = [I0]
         R = [torch.zeros_like(I0)]
         J = []
@@ -147,7 +150,7 @@ class SIR_base(object):
         for _ in range(self.steps * self.obs_points):
             # update stock
             new_infections = (S[-1] * I[-1] / N) * beta / self.steps
-            new_recoveries = I[-1] * gamma /self.steps
+            new_recoveries = I[-1] * gamma / self.steps
             new_infections = torch.minimum(new_infections, S[-1])
             new_recoveries = torch.minimum(new_recoveries, I[-1])
             S_new = S[-1] - new_infections
@@ -158,9 +161,9 @@ class SIR_base(object):
             R.append(R_new)
 
         # record population sizes at observation points
-        S = torch.stack(S[::self.steps], dim=1)
-        I = torch.stack(I[::self.steps], dim=1)
-        R = torch.stack(R[::self.steps], dim=1)
+        S = torch.stack(S[:: self.steps], dim=1)
+        I = torch.stack(I[:: self.steps], dim=1)
+        R = torch.stack(R[:: self.steps], dim=1)
 
         # record new infections accumulated between observation points
         J = S[:, :-1] - S[:, 1:]
@@ -180,10 +183,12 @@ class SIR_base(object):
         """
         # simulate disease outbreak
         params = torch.maximum(params, torch.tensor(0))  # ensure non-negative
-        S, I, R, J = self.simulate_sir(params[:, 0], params[:, 1], 1, params[:, 3], batch_size=batch_size)
+        S, I, R, J = self.simulate_sir(
+            params[:, 0], params[:, 1], 1, params[:, 3], batch_size=batch_size
+        )
 
         # observe
-        obs_dict = {'prevalence': I, 'incidence': J}
+        obs_dict = {"prevalence": I, "incidence": J}
         state = obs_dict[self.obs_type]
         obs = torch.poisson(params[:, 2].reshape(-1, 1) * state)
         return obs
@@ -239,7 +244,6 @@ class SIR_base(object):
 
 
 class SIR_twoway(SIR_base):
-
     def get_xyd(self, yd, xd=None):
         """
         Convert observations to data points with markers.
@@ -253,7 +257,11 @@ class SIR_twoway(SIR_base):
         """
         if xd is None:
             batch_size, num_points, _ = yd.shape
-            xd = torch.arange(num_points).repeat(batch_size).reshape(batch_size, num_points, 1)
+            xd = (
+                torch.arange(num_points)
+                .repeat(batch_size)
+                .reshape(batch_size, num_points, 1)
+            )
         data_marker = torch.full_like(xd, 1)
         xyd = torch.cat((data_marker, xd, yd), dim=-1)
         return xyd
@@ -271,17 +279,19 @@ class SIR_twoway(SIR_base):
         batch_size = yl.shape[0]
         xl = torch.zeros((batch_size, self.num_params, 1))
         lat_marker = torch.arange(self.num_params) + 2
-        lat_marker = lat_marker.repeat(batch_size).reshape(batch_size, self.num_params, 1)
+        lat_marker = lat_marker.repeat(batch_size).reshape(
+            batch_size, self.num_params, 1
+        )
         xyl = torch.cat((lat_marker, xl, yl), dim=-1)
         return xyl
 
     def get_data(
-            self,
-            batch_size=16,
-            n_total_points=25,
-            n_ctx_points=None,
-            x_range=None,
-            device="cpu",
+        self,
+        batch_size=16,
+        n_total_points=25,
+        n_ctx_points=None,
+        x_range=None,
+        device="cpu",
     ):
         """
         Generate data and latents for two-way batches.

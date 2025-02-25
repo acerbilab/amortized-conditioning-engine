@@ -1,0 +1,30 @@
+num_data : 3000 # n functions sampled is: this times gen_batch_size
+gen_batch_size: 1024 #batch size during paralel generation
+num_vcpu : 31
+num_processes : ${dataset.num_vcpu}
+data_dir : "./offline_data/bo2prior/"
+mp_method: "spawn"
+_target_: src.dataset.sampler_twoway.Sampler
+name : "bo_2d"
+num_ctx: 'random'
+dim_input: 3 # 1 + actual input dim
+num_latent: 3 # x1_star, x2_star, y_star 
+max_ctx_points: 100
+min_ctx_points: 10
+n_total_points: 200 # at least num_latent + max_ctx_points
+x_range: [[-1, -1],[1, 1]]
+loss_latent_weight: 1 #17.39
+loss_data_weight: 1
+device: 'cpu'
+ctx_tar_sampler: 'bernuniformsampler'
+num_bins: 100
+prior_type: "unif_mixture"
+problem: 
+  _target_: src.dataset.optimization.offline_bo_data_generator_prior.ProblemWrapper
+  data_dir: ${dataset.data_dir}
+  train_batch_size: ${batch_size}
+  eval_batch_size: ${eval_batch_size}
+  eval_split: ${eval_split}
+  train_test_split: 0.9
+  num_workers: ${dataset.num_vcpu}
+  prior: False
