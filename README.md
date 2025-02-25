@@ -82,6 +82,8 @@ python train.py -m dataset=offline_bo_4d,offline_bo_5d,offline_bo_6d encoder=tnp
 
 ### Running BO Experiments
 
+After trining the models the next steps is to run the BO experiments on the benchmark functions. 
+
 <TODO>
 
 

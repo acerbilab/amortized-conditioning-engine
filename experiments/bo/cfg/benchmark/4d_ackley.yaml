@@ -1,0 +1,11 @@
+f_name: ackley4d
+load_pickle: False
+plot_true_f: False
+n_init_points: 10
+n_repetition: 10
+iters: 100
+ace_mes_n_cand_points: 20
+ace_mes_n_mc_points: 20
+ace_model_path: trained_models/ACE4D128/
+tnpd_model_path: trained_models/TNPD4D/
+plot_title: True

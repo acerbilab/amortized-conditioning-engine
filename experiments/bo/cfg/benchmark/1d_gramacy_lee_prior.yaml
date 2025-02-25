@@ -1,0 +1,12 @@
+f_name: gramacylee1d
+load_pickle: False
+plot_true_f: False
+n_init_points: 3
+n_repetition: 10
+iters: 100
+ace_mes_n_cand_points : 20
+ace_mes_n_mc_points : 20
+ace_model_path: trained_models/ACE1D/
+tnpd_model_path: trained_models/TNPD1D/
+ace_prior_model_path: trained_models/ACEPU1D64/
+plot_title: True

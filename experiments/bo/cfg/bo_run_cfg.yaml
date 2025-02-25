@@ -1,0 +1,14 @@
+result_path: results/bo_run/
+sobol_init: False
+seed: 42
+flush_print: False
+transform_y: "power"
+defaults:  
+  - _self_  
+  - benchmark: 1d_ackley_debug
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled  
+hydra:  
+  output_subdir: null 
+  run:  
+    dir: .
