@@ -6,6 +6,6 @@ n_repetition: 10
 iters: 100
 ace_mes_n_cand_points: 20
 ace_mes_n_mc_points: 20
-ace_model_path: trained_models/ACE3D/
-tnpd_model_path: trained_models/TNPD3D/
+ace_model_path: models_ckpt/ACE3D/
+tnpd_model_path: models_ckpt/TNPD3D/
 plot_title: True
