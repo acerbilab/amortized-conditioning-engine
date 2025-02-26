@@ -100,8 +100,10 @@ python bo_plot.py result_path=results/bo_run/ plot_path=results/bo_plot/
 
 **Reproducing the Experiments**
 
-To fully reproduce the experiments, first ensure that the trained models are saved in the appropriate location before running the scripts.
-full scripts to reproduce the experiments is as folows:
+To fully reproduce the experiments, first ensure that the trained models are saved in the appropriate location before running the scripts. 
+In the default settings, the trained models are saved in `models_ckpt/` folder, also see individual `.yml` files in tge `cfgs/benchmark` folder to see the full path of the models. 
+
+Full script to reproduce the experiments is as folows:
 
 ```bash
 # no prior experiments
@@ -128,7 +130,8 @@ sh run_bo.sh 6D_griewank 10 results/bo_run/
 # plotting results
 python bo_plot.py result_path=results/bo_run/ plot_path=results/bo_plot/
 ```
-For with-prior experiments we also need to specify the std of the gaussian prior (see the manuscript for more detail)
+For with-prior experiments we also need to specify the standard deviation of the gaussian prior (see the manuscript for more detail).
+Full script to reproduce the prior experiments is as follows:
 
 ```bash
 # with prior experiments
