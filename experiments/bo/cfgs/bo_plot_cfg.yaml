@@ -1,0 +1,16 @@
+result_path: results/bo_run/
+plot_path: results/bo_plot/
+plot_mode: individual # or all
+save_type: png #or png
+prefix_file_name: ""
+plot_title: True
+plot_legend: True
+plot_axis: True
+defaults:  
+  - _self_  
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled  
+hydra:  
+  output_subdir: null 
+  run:  
+    dir: .

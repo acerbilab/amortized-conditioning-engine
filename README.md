@@ -82,6 +82,87 @@ python train.py -m dataset=offline_bo_4d,offline_bo_5d,offline_bo_6d encoder=tnp
 
 ### Running BO Experiments
 
-<TODO>
+After training the models, the next step is to run the BO experiments on the benchmark functions. This can be done as follows:
+
+1. Navigate to the `experiments/bo` folder.
+
+2. Run the following script, specifying the benchmark functions:  
+   
+```bash
+sh run_bo.sh 1d_ackley 10 results/bo_run/  
+```
+This runs the Ackley function with **10 repetitions** and saves the results in the specified folder.
+
+3. Once the experiment is complete, plot the results using:  
+```bash
+python bo_plot.py result_path=results/bo_run/ plot_path=results/bo_plot/
+```
+
+**Reproducing the Experiments**
+
+To fully reproduce the experiments, first ensure that the trained models are saved in the appropriate location before running the scripts.
+full scripts to reproduce the experiments is as folows:
+
+```bash
+# no prior experiments
+
+# main paper experiments
+sh run_bo.sh 1d_gramacy_lee 10 results/bo_run/ 
+sh run_bo.sh 2d_branin_scaled 10 results/bo_run/ 
+sh run_bo.sh 3d_hartmann 10 results/bo_run/ 
+sh run_bo.sh 4d_rosenbrock 10 results/bo_run/
+sh run_bo.sh 5d_rosenbrock 10 results/bo_run/
+sh run_bo.sh 6d_hartmann 10 results/bo_run/
+sh run_bo.sh 6d_levy 10 results/bo_run/    
+
+# extended experiments in appendix
+sh run_bo.sh 1d_ackley 10 results/bo_run/ 
+sh run_bo.sh 1d_neg_easom 10 results/bo_run/
+sh run_bo.sh 2d_michalewicz 10 results/bo_run/
+sh run_bo.sh 2d_ackley 10 results/bo_run/
+sh run_bo.sh 3d_levy 10 results/bo_run/
+sh run_bo.sh 4d_hartmann 10 results/bo_run/
+sh run_bo.sh 5D_griewank 10 results/bo_run/
+sh run_bo.sh 6D_griewank 10 results/bo_run/      
+
+# plotting results
+python bo_plot.py result_path=results/bo_run/ plot_path=results/bo_plot/
+```
+For with-prior experiments we also need to specify the std of the gaussian prior (see the manuscript for more detail)
+
+```bash
+# with prior experiments
+
+# main paper with prior experiments
+sh run_bo_prior.sh 2d_michalewicz_prior 0.25 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 2d_michalewicz_prior 0.10 10 results/bo_run_strongprior/
+
+sh run_bo_prior.sh 3d_levy_prior 0.25 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 3d_levy_prior 0.10 10 results/bo_run_strongprior/
+
+# extended experiments with prior in appendix
+sh run_bo_prior.sh 1d_ackley_prior 0.25 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 1d_ackley_prior 0.10 10 results/bo_run_strongprior/
+
+sh run_bo_prior.sh 1d_gramacy_lee_prior 0.25 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 1d_gramacy_lee_prior 0.10 10 results/bo_run_strongprior/
+
+sh run_bo_prior.sh 1d_neg_easom_prior 0.25 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 1d_neg_easom_prior 0.10 10 results/bo_run_strongprior/
+
+sh run_bo_prior.sh 2d_branin_scaled_prior 0.25 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 2d_branin_scaled_prior 0.10 10 results/bo_run_strongprior/
+
+sh run_bo_prior.sh 2d_ackley_prior 0.25 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 2d_ackley_prior 0.10 10 results/bo_run_strongprior/
+
+sh run_bo_prior.sh 3d_hartmann_prior 0.25 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 3d_hartmann_prior 0.10 10 results/bo_run_strongprior/
+
+
+# plotting results
+python bo_plot.py result_path=results/bo_run_strongprior/ plot_path=results/bo_plot/ prefix_file_name="strongprior_"
+python bo_plot.py result_path=results/bo_run_weakprior/ plot_path=results/bo_plot/ prefix_file_name="weakprior_"
+```
 
 

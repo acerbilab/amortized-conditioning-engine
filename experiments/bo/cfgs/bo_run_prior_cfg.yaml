@@ -1,0 +1,17 @@
+result_path: results/bo_run_prior/
+sobol_init: False
+prior_type: normal # can be flat
+prior_std: 0.2 # if prior_type = normal
+w_uniform: 0.1
+num_bins: 100
+seed: 42
+flush_print: False
+defaults:  
+  - _self_  
+  - benchmark: 1d_ackley_prior
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled  
+hydra:  
+  output_subdir: null 
+  run:  
+    dir: .

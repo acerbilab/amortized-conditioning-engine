@@ -1,0 +1,12 @@
+f_name: michalewicz2d
+load_pickle: False
+plot_true_f: False
+n_init_points: 10
+n_repetition: 10
+iters: 100
+ace_mes_n_cand_points: 20
+ace_mes_n_mc_points: 20
+ace_model_path: models_ckpt/ACE2D/
+tnpd_model_path: models_ckpt/TNPD2D/
+ace_prior_model_path: models_ckpt/ACEPU2D64/
+plot_title: True
