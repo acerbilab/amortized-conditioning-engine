@@ -9,7 +9,7 @@ setup(
         "torchvision==0.17.0",
         "torch==2.2.0",
         "torchaudio==2.2.0",
-        "scikit-learn==1.1.1",
+        "scikit-learn==1.5.0",
         "hydra-core==1.3.2",
         "wandb==0.16.3",
         "matplotlib==3.8.0",
