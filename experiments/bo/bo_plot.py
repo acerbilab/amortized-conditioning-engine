@@ -9,6 +9,7 @@ from objective_functions import benchmark_dict
 def bo_plot(cfg):
     all_results = calc_optim_evolution(cfg)
 
+    
     if cfg.plot_mode == "individual":
         for f_name in all_results:
             plot_one_figure(
@@ -32,7 +33,6 @@ def calc_optim_evolution(cfg):
     ]
 
     all_results = {}
-
 
     for result_folder in result_folders:
         result_folder_path = os.path.join(cfg.result_path, result_folder)
@@ -89,12 +89,13 @@ def plot_one_figure(cfg, exp_config, result_dict, f_name):
     linestyles = [result_dict[method]["config"]["linestyle"] for method in result_dict]
     colors = [result_dict[method]["config"]["color"] for method in result_dict]
     res_dict = {method: result_dict[method]["res"] for method in result_dict}
+
     plot_optimum_evolution(
         res_dict,
         x_range=[-1, 1],
         title=title,
         save_folder=cfg.plot_path,
-        output_file=f"{cfg.prefix_file_name}_bo_{dimx}d_{f_name}_result",
+        output_file=f"{cfg.prefix_file_name}bo_{dimx}d_{f_name}_result",
         n_init=exp_config.benchmark.n_init_points,
         minimum=obj_function_dict["optimum"],
         plot_legend=cfg.plot_legend,

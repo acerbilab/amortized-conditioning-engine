@@ -93,12 +93,9 @@ class GaussianProcessMES:
 
     def get_transformed_y(self, y):
         if self.transform_y == "power":
-            print("gpmes used power transform")
             transformed_y = power_transform_y(y)
         elif self.transform_y == "identity":
-            print("gpmes used identity transform")
             transformed_y = y
         elif self.transform_y == "standardize":
-            print("gpmes used standardize transform")
             transformed_y = standardize(y)
         return transformed_y

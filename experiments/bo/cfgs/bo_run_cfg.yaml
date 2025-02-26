@@ -2,7 +2,7 @@ result_path: results/bo_run/
 sobol_init: False
 seed: 42
 flush_print: False
-transform_y: "power"
+transform_y: "identity"
 defaults:  
   - _self_  
   - benchmark: 1d_ackley_debug

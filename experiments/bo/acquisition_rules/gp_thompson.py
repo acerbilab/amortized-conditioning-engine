@@ -60,11 +60,8 @@ class GaussianProcessThompsonSampling:
     
     def get_transformed_y(self, y):
         if self.transform_y == "power":
-            print("gp-ts used power transform")
             return power_transform_y(y)
         elif self.transform_y == "identity":
-            print("gp-ts used identity transform")
             return y
         elif self.transform_y == "standardize":
-            print("gp-ts used standardize transform")
             return standardize(y)

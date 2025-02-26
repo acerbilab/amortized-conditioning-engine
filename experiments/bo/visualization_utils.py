@@ -5,7 +5,6 @@ import torch
 import torch
 import pub_ready_plots as prp
 import math
-import tikzplotlib
 
 COLORS = [
     "blue",
@@ -133,11 +132,6 @@ def plot_optimum_evolution(
         # Save the plot
         file_path = f"{save_folder}{output_file}.{save_type}"
         fig.savefig(file_path, format=save_type, dpi=300 if save_type == "png" else None)
-        tikzplotlib.save(
-            f"{save_folder}{output_file}.tex",
-            axis_width="\\figurewidth",
-            axis_height="\\figureheight",
-        )
 
         print(f"Plot saved at {file_path}")
 

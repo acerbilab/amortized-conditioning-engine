@@ -164,10 +164,10 @@ def initialize_ace_mes(
     return bo_mes
 
 
-def initialize_random(obj_function, model_bound, model, **kwargs):
+def initialize_random(obj_function, model_bound, model, transform_y, **kwargs):
     random_acq = RandomAcqRule(x_ranges=model_bound)
-    # note that this model is not used
-    bo_random = BayesianOptimizerACE(obj_function, model, model_bound, random_acq)
+    # note that this model and the transform is not used, it is just a dummy for the api
+    bo_random = BayesianOptimizerACE(obj_function, model, model_bound, random_acq, transform_y=transform_y)
     return bo_random
 
 
