@@ -9,15 +9,14 @@ from .utils import power_transform_y
 
 
 class GaussianProcessThompsonSampling:
-
     def __init__(self, func, bounds, transform_y="identity") -> None:
         self.func = func
         self.bounds = torch.tensor(bounds, dtype=torch.float64)
         self.transform_y = transform_y
 
     def get_fitted_model(self, Xtrain, Ytrain):
-        train_Yvar = torch.full_like(Ytrain, 1e-6) # no noise and for stability
-        model = SingleTaskGP(Xtrain, Ytrain,train_Yvar)
+        train_Yvar = torch.full_like(Ytrain, 1e-6)  # no noise and for stability
+        model = SingleTaskGP(Xtrain, Ytrain, train_Yvar)
         mll = ExactMarginalLogLikelihood(model.likelihood, model)
         fit_gpytorch_mll(mll)
         return model
@@ -32,7 +31,7 @@ class GaussianProcessThompsonSampling:
         Xtrain = torch.tensor(eval_set["X"], dtype=torch.float64)  # [N, d]
         Ytrain = torch.tensor(eval_set["Y"], dtype=torch.float64)  # [N, 1]
         Ytrain = Ytrain * -1  # switch for minimization
-        
+
         for i in range(num_steps + 1):
             Ytrain_std = self.get_transformed_y(torch.clone(Ytrain))
             model = self.get_fitted_model(Xtrain, Ytrain_std)
@@ -57,7 +56,7 @@ class GaussianProcessThompsonSampling:
             torch.tensor(Ytrain, dtype=torch.float64),
         )
         return final_data
-    
+
     def get_transformed_y(self, y):
         if self.transform_y == "power":
             return power_transform_y(y)

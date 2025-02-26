@@ -25,7 +25,7 @@ class GaussianProcessThompsonSamplingPrior:
         prior_score = self.calc_pi(X_next) ** (self.beta / (step + 1))
         prior_score = prior_score / prior_score.sum()
         sampled_idx = torch.multinomial(prior_score, 1)
- 
+
         return X_next[sampled_idx.item()].unsqueeze(0)
 
     def calc_pi(self, x):

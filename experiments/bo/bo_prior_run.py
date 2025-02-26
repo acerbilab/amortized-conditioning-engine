@@ -1,6 +1,6 @@
 """
 IMPORTANT
-This code run BO experiments per one rep 
+This code run BO experiments per one rep
 So run this paralelly for each rep with DIFFERENT SEED
 """
 
@@ -31,6 +31,7 @@ from acquisition_rules.gp_tsp import GaussianProcessThompsonSamplingPrior
 from objective_functions import benchmark_dict, unnorm
 from utils import draw_init_points_set, load_config_and_model
 
+
 def sample_gaussian_bin_weights(mean, std, bin_start, bin_end, num_bins):
     """
     Sample Gaussian bin weights.
@@ -60,7 +61,7 @@ def add_prior(eval_set, prior_type, num_bins, xopt, prior_std, w_uniform, lb, ub
     at the moment we only consider xopt prior
     """
     noisy_xopt = truncated_normal_sample(xopt, prior_std, lb, ub)
-    
+
     # add latents infos to xc and xt
     eval_set.xc = torch.concat([eval_set.xt[:, :-1, :], eval_set.xc], axis=1)
     eval_set.yc = torch.concat([eval_set.yt[:, :-1, :], eval_set.yc], axis=1)
@@ -160,7 +161,7 @@ def bo_run(cfg, obj_function_dict, dimx, f_name):
         "ACEP": ace_prior_model,
         "TNPD": tnpd_model,
         "GP": None,
-        "piBO": None
+        "piBO": None,
     }
 
     # get init point sets with batch attridict and botorch related runs
@@ -203,10 +204,7 @@ def bo_run(cfg, obj_function_dict, dimx, f_name):
 
             model_name = method_dict[method]["model"]
 
-            if (
-                model_name == "ACE"
-                or model_name == "TNPD"
-            ):
+            if model_name == "ACE" or model_name == "TNPD":
                 optim_result = optim_dict[method].optimize(
                     eval_set,
                     cfg.benchmark.iters,
@@ -233,14 +231,12 @@ def bo_run(cfg, obj_function_dict, dimx, f_name):
                     botorch_eval_sets[i], prior_param[i], cfg.benchmark.iters
                 )
 
-                
             res_dict[method].append(optim_result)
     return res_dict
 
 
 @hydra.main(version_base=None, config_path="./cfgs", config_name="bo_run_prior_cfg")
 def run_bo_experiments(cfg):
-
     torch.manual_seed(cfg.seed)
     np.random.seed(cfg.seed)
     random.seed(cfg.seed)
@@ -293,6 +289,7 @@ def initialize_ace_mes(
     bo_mes = BayesianOptimizerACE(obj_function, model, model_bound, mes_acq_rule)
     return bo_mes
 
+
 def initialize_random(obj_function, model_bound, model, **kwargs):
     random_acq = RandomAcqRule(x_ranges=model_bound)
     # note that this model is not used
@@ -303,6 +300,7 @@ def initialize_random(obj_function, model_bound, model, **kwargs):
 def initialize_gp_mes(obj_function, model_bound, **kwargs):
     botorch_mes = GaussianProcessMES(obj_function, model_bound)
     return botorch_mes
+
 
 def initialize_gp_thompson(obj_function, model_bound, **kwargs):
     botorch_thompson = GaussianProcessThompsonSampling(obj_function, model_bound)
@@ -320,10 +318,14 @@ def initialize_tnpd_thompson(
     bo_tnpd_ts = BayesianOptimizerACE(obj_function, model, model_bound, tnpdts_acq_rule)
     return bo_tnpd_ts
 
+
 def initialize_gp_thompson_prior(obj_function, model_bound, **kwargs):
-    botorch_thompson = GaussianProcessThompsonSamplingPrior(obj_function, model_bound, kwargs["beta"], kwargs["ts_batch_size"])
+    botorch_thompson = GaussianProcessThompsonSamplingPrior(
+        obj_function, model_bound, kwargs["beta"], kwargs["ts_batch_size"]
+    )
     return botorch_thompson
-    
+
+
 bo_method_builder = {
     "ACE-Thompson": initialize_ace_thompson,
     "ACE-MES": initialize_ace_mes,
@@ -333,7 +335,7 @@ bo_method_builder = {
     "GP-MES": initialize_gp_mes,
     "GP-Thompson": initialize_gp_thompson,
     "TNPD-Thompson": initialize_tnpd_thompson,
-    "GP-TSP": initialize_gp_thompson_prior
+    "GP-TSP": initialize_gp_thompson_prior,
 }
 
 method_dict = {
@@ -341,10 +343,13 @@ method_dict = {
         "name": "GP-TSP",
         "model": "piBO",
         "record_history": False,
-        "params": {"beta":10, "ts_batch_size":100}, # they use n_iter/10 in their paper
-        "linestyle": "-",
+        "params": {
+            "beta": 10,
+            "ts_batch_size": 100,
+        },  # they use n_iter/10 in their paper
+        "linestyle": "-.",
         "color": "#FFA500",  # Orange
-    },   
+    },
     "GP-Thompson": {
         "name": "GP-Thompson",
         "model": "GP",
@@ -366,8 +371,8 @@ method_dict = {
         "model": "ACEP",
         "record_history": False,
         "params": {"yopt_q": 1, "impro_alpha": 0.01, "prior": True},
-        "linestyle": ":",
-        "color": "#800080",  # Purple
+        "linestyle": "-.",
+        "color": "#0000FF",  # Blue
     },
 }
 if __name__ == "__main__":

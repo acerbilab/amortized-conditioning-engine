@@ -13,6 +13,7 @@ def unnorm(val, val_lb, val_ub, new_lb, new_ub):
     unnormalized = ((val - val_lb) / (val_ub - val_lb)) * (new_ub - new_lb) + new_lb
     return unnormalized
 
+
 # 1D function ----------------------------------------------------------------------------
 gramacy_lee_1d = {
     "name": "gramacy lee",
@@ -175,42 +176,65 @@ levy3d = {
     ),
     "optimum": 0,
     "bounds": torch.tensor([[0, 0, 0], [1, 1, 1]], dtype=torch.float32),
-    "optimizer": torch.Tensor([11./20, 11./20, 11./20]),
+    "optimizer": torch.Tensor([11.0 / 20, 11.0 / 20, 11.0 / 20]),
 }
 
 ackley_3d = {
     "name": "ackley",
-    "func": lambda x, unnormalize: ((-20 * torch.exp(
-        -0.2 * torch.sqrt(0.333 * (unnormalize(x)[:, 0]**2 + 
-                                   unnormalize(x)[:, 1]**2 + 
-                                   unnormalize(x)[:, 2]**2))
-    ) - torch.exp(
-        0.333 * (torch.cos(2 * torch.pi * unnormalize(x)[:, 0]) + 
-                 torch.cos(2 * torch.pi * unnormalize(x)[:, 1]) + 
-                 torch.cos(2 * torch.pi * unnormalize(x)[:, 2]))
-    ) + 20 + torch.exp(torch.tensor(1.0)))),  # torch.e equivalent
+    "func": lambda x, unnormalize: (
+        -20
+        * torch.exp(
+            -0.2
+            * torch.sqrt(
+                0.333
+                * (
+                    unnormalize(x)[:, 0] ** 2
+                    + unnormalize(x)[:, 1] ** 2
+                    + unnormalize(x)[:, 2] ** 2
+                )
+            )
+        )
+        - torch.exp(
+            0.333
+            * (
+                torch.cos(2 * torch.pi * unnormalize(x)[:, 0])
+                + torch.cos(2 * torch.pi * unnormalize(x)[:, 1])
+                + torch.cos(2 * torch.pi * unnormalize(x)[:, 2])
+            )
+        )
+        + 20
+        + torch.exp(torch.tensor(1.0))
+    ),  # torch.e equivalent
     "bounds": torch.tensor([[-32.768, -32.768, -32.768], [32.768, 32.768, 32.768]]),
     "optimum": 0.0,
     "optimizer": torch.tensor([0.0, 0.0, 0.0]),
 }
+
+
 def hartmann_4(x, unnormalize):
     """
     https://www.sfu.ca/~ssurjano/Code/hart4r.html
     """
     x = unnormalize(x)
     alpha = torch.tensor([1.0, 1.2, 3.0, 3.2], dtype=torch.float32)
-    A = torch.tensor([
-        [10.0, 3.0, 17.0, 3.5, 1.7, 8.0],
-        [0.05, 10.0, 17.0, 0.1, 8.0, 14.0],
-        [3.0, 3.5, 1.7, 10.0, 17.0, 8.0],
-        [17.0, 8.0, 0.05, 10.0, 0.1, 14.0]
-    ], dtype=torch.float32)
-    P = 1e-4 * torch.tensor([
-        [1312.0, 1696.0, 5569.0, 124.0, 8283.0, 5886.0],
-        [2329.0, 4135.0, 8307.0, 3736.0, 1004.0, 9991.0],
-        [2348.0, 1451.0, 3522.0, 2883.0, 3047.0, 6650.0],
-        [4047.0, 8828.0, 8732.0, 5743.0, 1091.0, 381.0]
-    ], dtype=torch.float32)
+    A = torch.tensor(
+        [
+            [10.0, 3.0, 17.0, 3.5, 1.7, 8.0],
+            [0.05, 10.0, 17.0, 0.1, 8.0, 14.0],
+            [3.0, 3.5, 1.7, 10.0, 17.0, 8.0],
+            [17.0, 8.0, 0.05, 10.0, 0.1, 14.0],
+        ],
+        dtype=torch.float32,
+    )
+    P = 1e-4 * torch.tensor(
+        [
+            [1312.0, 1696.0, 5569.0, 124.0, 8283.0, 5886.0],
+            [2329.0, 4135.0, 8307.0, 3736.0, 1004.0, 9991.0],
+            [2348.0, 1451.0, 3522.0, 2883.0, 3047.0, 6650.0],
+            [4047.0, 8828.0, 8732.0, 5743.0, 1091.0, 381.0],
+        ],
+        dtype=torch.float32,
+    )
     # Add a batch dimension for broadcasting [N, 4] -> [N, 4, 1]
     x = x.unsqueeze(1)  # [N, 1, 4]
     # Compute inner term
@@ -220,6 +244,7 @@ def hartmann_4(x, unnormalize):
     # Final function value
     y = (1.1 - outer) / 0.839
     return y
+
 
 hartmann_4d = {
     "name": "hartmann_4",
@@ -232,20 +257,33 @@ hartmann_4d = {
 rosenbrock_4d = {
     "name": "rosenbrock",
     "func": lambda x, unnormalize: torch.sum(
-        100 * (unnormalize(x)[:, 1:] - unnormalize(x)[:, :-1]**2)**2 + (1 - unnormalize(x)[:, :-1])**2, dim=-1
+        100 * (unnormalize(x)[:, 1:] - unnormalize(x)[:, :-1] ** 2) ** 2
+        + (1 - unnormalize(x)[:, :-1]) ** 2,
+        dim=-1,
     ),
     "bounds": torch.tensor([[-5.0, -5.0, -5.0, -5.0], [5.0, 5.0, 5.0, 5.0]]),
     "optimum": 0.0,
     "optimizer": torch.tensor([1.0, 1.0, 1.0, 1.0]),
 }
 
-xt = lambda x: 15*x - 5
+xt = lambda x: 15 * x - 5
 rosenbrock_4d_picheny = {
     "name": "rosenbrock",
-    "func": lambda x, unnormalize: ((torch.sum(
-        (100 * (xt(unnormalize(x))[:, 1:] - xt(unnormalize(x))[:, :-1]**2)**2 + (1 - xt(unnormalize(x))[:, :-1])**2), dim=-1
-    ))- 3.827 * 1e5) / (3.755 * 1e5),
-    "bounds": torch.tensor([[0., 0., 0., 0.], [1.0, 1.0, 1.0, 1.0]]),
+    "func": lambda x, unnormalize: (
+        (
+            torch.sum(
+                (
+                    100
+                    * (xt(unnormalize(x))[:, 1:] - xt(unnormalize(x))[:, :-1] ** 2) ** 2
+                    + (1 - xt(unnormalize(x))[:, :-1]) ** 2
+                ),
+                dim=-1,
+            )
+        )
+        - 3.827 * 1e5
+    )
+    / (3.755 * 1e5),
+    "bounds": torch.tensor([[0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0]]),
     "optimum": -1.01917,
     "optimizer": torch.tensor([0.4, 0.4, 0.4, 0.4]),
 }
@@ -253,11 +291,15 @@ rosenbrock_4d_picheny = {
 ackley_4d = {
     "name": "ackley",
     "func": lambda x, unnormalize: (
-        -20 * torch.exp(-0.2 * torch.sqrt(0.25 * torch.sum(unnormalize(x)**2, dim=-1)))
+        -20
+        * torch.exp(-0.2 * torch.sqrt(0.25 * torch.sum(unnormalize(x) ** 2, dim=-1)))
         - torch.exp(0.25 * torch.sum(torch.cos(2 * torch.pi * unnormalize(x)), dim=-1))
-        + 20 + torch.exp(torch.tensor(1.0))
-    ),  
-    "bounds": torch.tensor([[-32.768, -32.768, -32.768, -32.768], [32.768, 32.768, 32.768, 32.768]]),
+        + 20
+        + torch.exp(torch.tensor(1.0))
+    ),
+    "bounds": torch.tensor(
+        [[-32.768, -32.768, -32.768, -32.768], [32.768, 32.768, 32.768, 32.768]]
+    ),
     "optimum": 0.0,
     "optimizer": torch.tensor([0.0, 0.0, 0.0, 0.0]),
 }
@@ -265,18 +307,23 @@ ackley_4d = {
 
 def shekel_4(x, unnormalize):
     x_unnormalized = unnormalize(x)
-    C = torch.tensor([
-        [4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0],
-        [4.0, 1.0, 8.0, 6.0, 7.0, 9.0, 3.0, 1.0, 2.0, 3.6],
-        [4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0],
-        [4.0, 1.0, 8.0, 6.0, 7.0, 9.0, 3.0, 1.0, 2.0, 3.6],
-    ], dtype=torch.float32).T
-    beta = torch.tensor([0.1, 0.2, 0.2, 0.4, 0.4, 0.6, 0.3, 0.7, 0.5, 0.5], dtype=torch.float32)
+    C = torch.tensor(
+        [
+            [4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0],
+            [4.0, 1.0, 8.0, 6.0, 7.0, 9.0, 3.0, 1.0, 2.0, 3.6],
+            [4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0],
+            [4.0, 1.0, 8.0, 6.0, 7.0, 9.0, 3.0, 1.0, 2.0, 3.6],
+        ],
+        dtype=torch.float32,
+    ).T
+    beta = torch.tensor(
+        [0.1, 0.2, 0.2, 0.4, 0.4, 0.6, 0.3, 0.7, 0.5, 0.5], dtype=torch.float32
+    )
 
-    
     inner_sum = torch.sum((x_unnormalized.unsqueeze(1) * 10.0 - C) ** 2, dim=-1)
     res = -torch.sum(1 / (inner_sum + beta), dim=-1)
     return res
+
 
 shekel_4d = {
     "name": "shekel_4",
@@ -292,47 +339,78 @@ rosenbrock_5d = {
     "func": lambda x, unnormalize: (
         (
             torch.sum(
-                100 * (15 * unnormalize(x)[:,1:] - 5 - (15 * unnormalize(x)[:,:-1] - 5) ** 2) ** 2 +
-                (1 - (15 * unnormalize(x)[:,:-1] - 5)) ** 2
-            ,dim=-1) - 3.827 * 10 ** 5
-        ) / (3.755 * 10 ** 5)
+                100
+                * (
+                    15 * unnormalize(x)[:, 1:]
+                    - 5
+                    - (15 * unnormalize(x)[:, :-1] - 5) ** 2
+                )
+                ** 2
+                + (1 - (15 * unnormalize(x)[:, :-1] - 5)) ** 2,
+                dim=-1,
+            )
+            - 3.827 * 10**5
+        )
+        / (3.755 * 10**5)
     ),
     "bounds": torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0, 1.0]]),
-    "optimum": -1.0195,  #1M evaluations
-    "optimizer": torch.tensor([0.3782, 0.3626, 0.3654, 0.3720, 0.3635]),  #1M evaluations
+    "optimum": -1.0195,  # 1M evaluations
+    "optimizer": torch.tensor(
+        [0.3782, 0.3626, 0.3654, 0.3720, 0.3635]
+    ),  # 1M evaluations
 }
 
 levy_5d = {
     "name": "levy_5",
     "func": lambda x, unnormalize: (
-        torch.sin(torch.pi * (1 + (unnormalize(x) - 1) / 4))**2 +
-        torch.sum(((1 + (unnormalize(x) - 1) / 4) - 1)**2 * (1 + 10 * torch.sin(torch.pi * (1 + (unnormalize(x) - 1) / 4))**2), dim=-1) +
-        (((1 + (unnormalize(x)[:, -1] - 1) / 4) - 1)**2) * (1 + torch.sin(2 * torch.pi * (1 + (unnormalize(x)[:, -1] - 1) / 4))**2)
+        torch.sin(torch.pi * (1 + (unnormalize(x) - 1) / 4)) ** 2
+        + torch.sum(
+            ((1 + (unnormalize(x) - 1) / 4) - 1) ** 2
+            * (1 + 10 * torch.sin(torch.pi * (1 + (unnormalize(x) - 1) / 4)) ** 2),
+            dim=-1,
+        )
+        + (((1 + (unnormalize(x)[:, -1] - 1) / 4) - 1) ** 2)
+        * (1 + torch.sin(2 * torch.pi * (1 + (unnormalize(x)[:, -1] - 1) / 4)) ** 2)
     ),
-    "bounds": torch.tensor([[-10.0, -10.0, -10.0, -10.0, -10.0], [10.0, 10.0, 10.0, 10.0, 10.0]]),
+    "bounds": torch.tensor(
+        [[-10.0, -10.0, -10.0, -10.0, -10.0], [10.0, 10.0, 10.0, 10.0, 10.0]]
+    ),
     "optimum": 0.0,
     "optimizer": torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0]),
 }
 
+
 def levy_5(x, unnormalize):
     z = 1 + ((unnormalize(x) - 1) / 4)
     term1 = torch.sin(torch.pi * z[:, 0]) ** 2
-    term2 = torch.sum((z[:, :-1] - 1) ** 2 * (1 + 10 * torch.sin(torch.pi * z[:, :-1] + 1) ** 2), dim=-1)
+    term2 = torch.sum(
+        (z[:, :-1] - 1) ** 2 * (1 + 10 * torch.sin(torch.pi * z[:, :-1] + 1) ** 2),
+        dim=-1,
+    )
     term3 = (z[:, -1] - 1) ** 2 * (1 + torch.sin(2 * torch.pi * z[:, -1]) ** 2)
     return term1 + term2 + term3
+
 
 levy_5d = {
     "name": "levy_5",
     "func": levy_5,
-    "bounds": torch.tensor([[-10.0, -10.0, -10.0, -10.0, -10.0], [10.0, 10.0, 10.0, 10.0, 10.0]]),
+    "bounds": torch.tensor(
+        [[-10.0, -10.0, -10.0, -10.0, -10.0], [10.0, 10.0, 10.0, 10.0, 10.0]]
+    ),
     "optimum": 0.0,
     "optimizer": torch.tensor([1.0, 1.0, 1.0, 1.0, 1.0]),
 }
 griewank_5d = {
     "name": "griewank_5",
     "func": lambda x, unnormalize: (
-        torch.sum(unnormalize(x) ** 2, dim=-1) / 4000.0 - 
-        torch.prod(torch.cos(unnormalize(x) / torch.sqrt(torch.arange(1, 6, device=x.device).float())), dim=-1) + 1
+        torch.sum(unnormalize(x) ** 2, dim=-1) / 4000.0
+        - torch.prod(
+            torch.cos(
+                unnormalize(x) / torch.sqrt(torch.arange(1, 6, device=x.device).float())
+            ),
+            dim=-1,
+        )
+        + 1
     ),
     "bounds": torch.tensor([[-600, -600, -600, -600, -600], [600, 600, 600, 600, 600]]),
     "optimum": 0.0,
@@ -342,9 +420,14 @@ griewank_5d = {
 rastrigin_5d = {
     "name": "rastrigin_5",
     "func": lambda x, unnormalize: (
-        10 * 5 + torch.sum(unnormalize(x) ** 2 - 10 * torch.cos(2 * torch.pi * unnormalize(x)), dim=-1)
+        10 * 5
+        + torch.sum(
+            unnormalize(x) ** 2 - 10 * torch.cos(2 * torch.pi * unnormalize(x)), dim=-1
+        )
     ),
-    "bounds": torch.tensor([[-5.12, -5.12, -5.12, -5.12, -5.12], [5.12, 5.12, 5.12, 5.12, 5.12]]),
+    "bounds": torch.tensor(
+        [[-5.12, -5.12, -5.12, -5.12, -5.12], [5.12, 5.12, 5.12, 5.12, 5.12]]
+    ),
     "optimum": 0.0,
     "optimizer": torch.tensor([0.0, 0.0, 0.0, 0.0, 0.0]),
 }
@@ -356,18 +439,24 @@ def hartmann_6(x, unnormalize):
     """
     x = unnormalize(x)
     alpha = torch.tensor([1.0, 1.2, 3.0, 3.2], dtype=torch.float32)
-    A = torch.tensor([
-        [10.0, 3.0, 17.0, 3.5, 1.7, 8.0],
-        [0.05, 10.0, 17.0, 0.1, 8.0, 14.0],
-        [3.0, 3.5, 1.7, 10.0, 17.0, 8.0],
-        [17.0, 8.0, 0.05, 10.0, 0.1, 14.0]
-    ], dtype=torch.float32)
-    P = 1e-4 * torch.tensor([
-        [1312.0, 1696.0, 5569.0, 124.0, 8283.0, 5886.0],
-        [2329.0, 4135.0, 8307.0, 3736.0, 1004.0, 9991.0],
-        [2348.0, 1451.0, 3522.0, 2883.0, 3047.0, 6650.0],
-        [4047.0, 8828.0, 8732.0, 5743.0, 1091.0, 381.0]
-    ], dtype=torch.float32)
+    A = torch.tensor(
+        [
+            [10.0, 3.0, 17.0, 3.5, 1.7, 8.0],
+            [0.05, 10.0, 17.0, 0.1, 8.0, 14.0],
+            [3.0, 3.5, 1.7, 10.0, 17.0, 8.0],
+            [17.0, 8.0, 0.05, 10.0, 0.1, 14.0],
+        ],
+        dtype=torch.float32,
+    )
+    P = 1e-4 * torch.tensor(
+        [
+            [1312.0, 1696.0, 5569.0, 124.0, 8283.0, 5886.0],
+            [2329.0, 4135.0, 8307.0, 3736.0, 1004.0, 9991.0],
+            [2348.0, 1451.0, 3522.0, 2883.0, 3047.0, 6650.0],
+            [4047.0, 8828.0, 8732.0, 5743.0, 1091.0, 381.0],
+        ],
+        dtype=torch.float32,
+    )
     # Add a batch dimension for broadcasting [N, 6] -> [N, 4, 1]
     x = x.unsqueeze(1)  # [N, 1, 6]
     # Compute inner term
@@ -378,13 +467,17 @@ def hartmann_6(x, unnormalize):
     y = -outer
     return y
 
+
 hartmann_6d = {
     "name": "hartmann_6",
     "func": hartmann_6,
-    "bounds": torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]]),
+    "bounds": torch.tensor(
+        [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]]
+    ),
     "optimum": -3.32237,
     "optimizer": torch.tensor([0.20169, 0.15001, 0.47687, 0.27533, 0.31165, 0.6573]),
 }
+
 
 def ackley_6(x, unnormalize, d=6):
     """
@@ -400,6 +493,7 @@ def ackley_6(x, unnormalize, d=6):
     y = term1 + term2 + a + torch.exp(torch.tensor(1.0))
     return y
 
+
 ackley_6d = {
     "name": "ackley_6",
     "func": ackley_6,
@@ -408,6 +502,7 @@ ackley_6d = {
     "optimizer": torch.tensor([0.0] * 6),
 }
 
+
 def levy_6(x, unnormalize):
     """
     Implements the 6-dimensional Levy function.
@@ -415,10 +510,14 @@ def levy_6(x, unnormalize):
     x = unnormalize(x)
     w = 1 + (x - 1) / 4
     term1 = torch.sin(torch.pi * w[:, 0]) ** 2
-    term2 = torch.sum((w[:, :-1] - 1)**2 * (1 + 10 * torch.sin(torch.pi * w[:, :-1] + 1)**2), dim=1)
-    term3 = (w[:, -1] - 1)**2 * (1 + torch.sin(2 * torch.pi * w[:, -1])**2)
+    term2 = torch.sum(
+        (w[:, :-1] - 1) ** 2 * (1 + 10 * torch.sin(torch.pi * w[:, :-1] + 1) ** 2),
+        dim=1,
+    )
+    term3 = (w[:, -1] - 1) ** 2 * (1 + torch.sin(2 * torch.pi * w[:, -1]) ** 2)
     y = term1 + term2 + term3
     return y
+
 
 levy_6d = {
     "name": "levy_6",
@@ -428,6 +527,7 @@ levy_6d = {
     "optimizer": torch.tensor([1.0] * 6),
 }
 
+
 def griewank_6(x, unnormalize):
     """
     Implements the 6-dimensional Griewank function.
@@ -435,9 +535,15 @@ def griewank_6(x, unnormalize):
     x = unnormalize(x)
     d = x.size(1)  # Dimensionality
     term1 = torch.sum(x**2, dim=1) / 4000
-    term2 = torch.prod(torch.cos(x / torch.sqrt(torch.arange(1, d + 1, dtype=torch.float32, device=x.device))), dim=1)
+    term2 = torch.prod(
+        torch.cos(
+            x / torch.sqrt(torch.arange(1, d + 1, dtype=torch.float32, device=x.device))
+        ),
+        dim=1,
+    )
     y = term1 - term2 + 1
     return y
+
 
 griewank_6d = {
     "name": "griewank_6",
@@ -475,10 +581,26 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     def visualize_1d_function(func_dict):
-        x = torch.linspace(func_dict["bounds"][0].item(), func_dict["bounds"][1].item(), 1000).unsqueeze(1)
-        y = func_dict["func"](x, lambda x: unnorm(x, func_dict["bounds"][0], func_dict["bounds"][1], func_dict["bounds"][0], func_dict["bounds"][1]))
+        x = torch.linspace(
+            func_dict["bounds"][0].item(), func_dict["bounds"][1].item(), 1000
+        ).unsqueeze(1)
+        y = func_dict["func"](
+            x,
+            lambda x: unnorm(
+                x,
+                func_dict["bounds"][0],
+                func_dict["bounds"][1],
+                func_dict["bounds"][0],
+                func_dict["bounds"][1],
+            ),
+        )
         plt.plot(x.numpy(), y.numpy(), label=func_dict["name"])
-        plt.scatter(func_dict["optimizer"].numpy(), func_dict["optimum"], color='red', label='Optimum')
+        plt.scatter(
+            func_dict["optimizer"].numpy(),
+            func_dict["optimum"],
+            color="red",
+            label="Optimum",
+        )
         plt.legend()
         plt.title(f"1D Function: {func_dict['name']}")
         plt.xlabel("x")
@@ -486,15 +608,33 @@ if __name__ == "__main__":
         plt.show()
 
     def visualize_2d_function(func_dict):
-        x0 = torch.linspace(func_dict["bounds"][0, 0].item(), func_dict["bounds"][1, 0].item(), 100)
-        x1 = torch.linspace(func_dict["bounds"][0, 1].item(), func_dict["bounds"][1, 1].item(), 100)
+        x0 = torch.linspace(
+            func_dict["bounds"][0, 0].item(), func_dict["bounds"][1, 0].item(), 100
+        )
+        x1 = torch.linspace(
+            func_dict["bounds"][0, 1].item(), func_dict["bounds"][1, 1].item(), 100
+        )
         X0, X1 = torch.meshgrid(x0, x1)
         X = torch.cat([X0.reshape(-1, 1), X1.reshape(-1, 1)], dim=1)
-        y = func_dict["func"](X, lambda x: unnorm(x, func_dict["bounds"][0], func_dict["bounds"][1], func_dict["bounds"][0], func_dict["bounds"][1]))
+        y = func_dict["func"](
+            X,
+            lambda x: unnorm(
+                x,
+                func_dict["bounds"][0],
+                func_dict["bounds"][1],
+                func_dict["bounds"][0],
+                func_dict["bounds"][1],
+            ),
+        )
         Y = y.reshape(100, 100).detach().numpy()
-        plt.contourf(X0.numpy(), X1.numpy(), Y, levels=50, cmap='viridis')
+        plt.contourf(X0.numpy(), X1.numpy(), Y, levels=50, cmap="viridis")
         plt.colorbar()
-        plt.scatter(func_dict["optimizer"][0].item(), func_dict["optimizer"][1].item(), color='red', label='Optimum')
+        plt.scatter(
+            func_dict["optimizer"][0].item(),
+            func_dict["optimizer"][1].item(),
+            color="red",
+            label="Optimum",
+        )
         plt.legend()
         plt.title(f"2D Function: {func_dict['name']}")
         plt.xlabel("x0")
@@ -503,9 +643,24 @@ if __name__ == "__main__":
 
     def visualize_histogram(func_dict, num_samples=100000000):
         dim = func_dict["bounds"].shape[1]
-        x = torch.rand(num_samples, dim) * (func_dict["bounds"][1] - func_dict["bounds"][0]) + func_dict["bounds"][0]
-        y = func_dict["func"](x, lambda x: unnorm(x, func_dict["bounds"][0], func_dict["bounds"][1], func_dict["bounds"][0], func_dict["bounds"][1]))
-        print(f"function: {func_dict['name']}, minimum: {y.min().item()}, minimizer: {x[torch.argmin(y)]}")
+        x = (
+            torch.rand(num_samples, dim)
+            * (func_dict["bounds"][1] - func_dict["bounds"][0])
+            + func_dict["bounds"][0]
+        )
+        y = func_dict["func"](
+            x,
+            lambda x: unnorm(
+                x,
+                func_dict["bounds"][0],
+                func_dict["bounds"][1],
+                func_dict["bounds"][0],
+                func_dict["bounds"][1],
+            ),
+        )
+        print(
+            f"function: {func_dict['name']}, minimum: {y.min().item()}, minimizer: {x[torch.argmin(y)]}"
+        )
         plt.hist(y.numpy(), bins=50, alpha=0.75)
         plt.title(f"Histogram of y values for {func_dict['name']}")
         plt.xlabel("y")
@@ -513,8 +668,8 @@ if __name__ == "__main__":
         plt.show()
 
     # Example usage:
-    #visualize_1d_function(gramacy_lee_1d)
-    #visualize_2d_function(ackley_2d)
-    #visualize_histogram(ackley_3d)
+    # visualize_1d_function(gramacy_lee_1d)
+    # visualize_2d_function(ackley_2d)
+    # visualize_histogram(ackley_3d)
 
     visualize_histogram(griewank_6d)

@@ -14,15 +14,14 @@ from .utils import power_transform_y
 
 
 class GaussianProcessMES:
-
     def __init__(self, func, bounds, transform_y) -> None:
         self.func = func
         self.bounds = torch.tensor(bounds, dtype=torch.float64)
         self.transform_y = transform_y
 
     def get_fitted_model(self, Xtrain, Ytrain):
-        train_Yvar = torch.full_like(Ytrain, 1e-6) # no noise and for stability
-        model = SingleTaskGP(Xtrain, Ytrain,train_Yvar)
+        train_Yvar = torch.full_like(Ytrain, 1e-6)  # no noise and for stability
+        model = SingleTaskGP(Xtrain, Ytrain, train_Yvar)
         mll = ExactMarginalLogLikelihood(model.likelihood, model)
         fit_gpytorch_mll(mll)
         return model
@@ -64,7 +63,7 @@ class GaussianProcessMES:
     def optimize(self, eval_set, num_steps):
         Xtrain = torch.tensor(eval_set["X"], dtype=torch.float64)  # [N, d]
         Ytrain = torch.tensor(eval_set["Y"], dtype=torch.float64)  # [N, 1]
-        
+
         for i in range(num_steps + 1):
             Ytrain_std = self.get_transformed_y(torch.clone(Ytrain))
             model = self.get_fitted_model(Xtrain, Ytrain_std)

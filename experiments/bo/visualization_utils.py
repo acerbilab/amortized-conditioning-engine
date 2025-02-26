@@ -65,7 +65,8 @@ def plot_optimum_evolution(
     Returns:
         None
     """
-    n_init = n_init -1
+    n_init = n_init - 1
+
     def compute_cumulative_minimum(values):
         """Compute the cumulative minimum along the first dimension."""
         return torch.cummin(values, dim=0).values
@@ -75,7 +76,10 @@ def plot_optimum_evolution(
     linestyles = linestyles or LINESTYLES
 
     # Plot setup using a custom context (assume prp.get_context is defined elsewhere)
-    with prp.get_context(layout=prp.Layout.NEURIPS, width_frac=1, height_frac=0.4) as (fig, axs):
+    with prp.get_context(layout=prp.Layout.NEURIPS, width_frac=1, height_frac=0.4) as (
+        fig,
+        axs,
+    ):
         for i, method_name in enumerate(res_dict.keys()):
             cumulative_minima = []
 
@@ -92,12 +96,16 @@ def plot_optimum_evolution(
                 within_bounds = within_bounds.all(dim=-1, keepdim=True)
                 y[~within_bounds] = torch.inf
 
-                cumulative_minima.append(compute_cumulative_minimum(y[0, :, 0])[None, :])
+                cumulative_minima.append(
+                    compute_cumulative_minimum(y[0, :, 0])[None, :]
+                )
 
             # Convert cumulative minima to tensor and compute statistics
             cumulative_minima_tensor = torch.cat(cumulative_minima)
             mean = cumulative_minima_tensor.mean(dim=0)
-            std_error = cumulative_minima_tensor.std(dim=0) / torch.sqrt(torch.tensor(len(cumulative_minima)))
+            std_error = cumulative_minima_tensor.std(dim=0) / torch.sqrt(
+                torch.tensor(len(cumulative_minima))
+            )
 
             # Prepare data for plotting
             iterations = torch.arange(1, len(mean) + 1).detach().numpy()
@@ -131,7 +139,9 @@ def plot_optimum_evolution(
 
         # Save the plot
         file_path = f"{save_folder}{output_file}.{save_type}"
-        fig.savefig(file_path, format=save_type, dpi=300 if save_type == "png" else None)
+        fig.savefig(
+            file_path, format=save_type, dpi=300 if save_type == "png" else None
+        )
 
         print(f"Plot saved at {file_path}")
 
@@ -187,7 +197,7 @@ def plot_optimum_evolution_all(
     #     sharey=False,  # Allow different y-scales for each plot
     #     sharex=True,   # Share x-axis
     # ) as (fig, axs):
-    
+
     fig, axs = plt.subplots(nrows, ncols, figsize=(ncols * 5, nrows * 3))
     axs = axs.flatten()
     for n, res_dict in enumerate(res_dicts):
@@ -195,7 +205,7 @@ def plot_optimum_evolution_all(
             cumulative_minima = []
             minimum = minimums[n]
             x_range = x_ranges[n]
-            n_init = n_inits[n] -1
+            n_init = n_inits[n] - 1
 
             for replication in res_dict[method_name]["res"]:
                 if "GP" not in method_name and "BOPrO" not in method_name:
@@ -210,12 +220,16 @@ def plot_optimum_evolution_all(
                 within_bounds = within_bounds.all(dim=-1, keepdim=True)
                 y[~within_bounds] = torch.inf
 
-                cumulative_minima.append(compute_cumulative_minimum(y[0, :, 0])[None, :])
+                cumulative_minima.append(
+                    compute_cumulative_minimum(y[0, :, 0])[None, :]
+                )
 
             # Aggregate results and compute statistics
             cumulative_minima_tensor = torch.cat(cumulative_minima)
             mean = cumulative_minima_tensor.mean(dim=0)
-            std_error = cumulative_minima_tensor.std(dim=0) / torch.sqrt(torch.tensor(len(cumulative_minima)))
+            std_error = cumulative_minima_tensor.std(dim=0) / torch.sqrt(
+                torch.tensor(len(cumulative_minima))
+            )
 
             # Plot data
             iterations = torch.arange(1, len(mean) + 1).detach().numpy()
@@ -259,15 +273,18 @@ def plot_optimum_evolution_all(
     fig_legend.legend(sorted_handles, sorted_labels, loc="center", ncol=len(labels))
 
     # Save plots and legend
-    
-    fig_legend.savefig(f"{save_folder}legend_only.{save_type}", bbox_inches="tight", dpi=300)
-    #legend.remove()
+
+    fig_legend.savefig(
+        f"{save_folder}legend_only.{save_type}", bbox_inches="tight", dpi=300
+    )
+    # legend.remove()
     fig.savefig(f"{save_folder}{output_file}.{save_type}", format=save_type, dpi=300)
 
-    print(f"Plots saved at {save_folder}{output_file}.{save_type} and legend saved as {save_folder}legend_only.{save_type}")
+    print(
+        f"Plots saved at {save_folder}{output_file}.{save_type} and legend saved as {save_folder}legend_only.{save_type}"
+    )
 
 
-       
 def calculate_rows_columns(N):
     if N < 6:
         rows = 1

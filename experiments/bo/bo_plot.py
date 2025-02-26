@@ -5,11 +5,11 @@ import pickle
 from omegaconf import OmegaConf
 from objective_functions import benchmark_dict
 
+
 @hydra.main(version_base=None, config_path="./cfgs", config_name="bo_plot_cfg")
 def bo_plot(cfg):
     all_results = calc_optim_evolution(cfg)
 
-    
     if cfg.plot_mode == "individual":
         for f_name in all_results:
             plot_one_figure(
@@ -46,7 +46,7 @@ def calc_optim_evolution(cfg):
                 os.path.join(result_folder_path, f)
             )  # Checks if it is a file
         ]
-        
+
         result_files_paths.remove("experiment")
         result_files_paths = list(set(result_files_paths))
         result_dict = {}
@@ -58,7 +58,11 @@ def calc_optim_evolution(cfg):
             yaml_path = os.path.join(result_folder_path, y_file)
             config = OmegaConf.load(yaml_path)
             # get all files for certain method, this gather are bo runs rep
-            rep_files = [f for f in os.listdir(result_folder_path) if f.startswith(y_file[:-5]+"_")]
+            rep_files = [
+                f
+                for f in os.listdir(result_folder_path)
+                if f.startswith(y_file[:-5] + "_")
+            ]
             res = []
             for file_name in rep_files:
                 file_path = os.path.join(result_folder_path, file_name)

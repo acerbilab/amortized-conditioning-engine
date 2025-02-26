@@ -75,7 +75,7 @@ class BayesianOptimizerACE:
                 return self._optimize(init_batch, num_steps, record_history, **kwargs)
         else:
             return self._optimize(init_batch, num_steps, record_history, **kwargs)
-        
+
     def _optimize(self, init_batch, num_steps=100, record_history=False, **kwargs):
         """
         Perform the optimization process.

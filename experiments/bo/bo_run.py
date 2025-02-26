@@ -136,11 +136,15 @@ def run_bo_experiments(cfg):
             print(f"Error in saving {file_path}", e, flush=cfg.flush_print)
 
 
-def initialize_ace_thompson(obj_function, model_bound, model, dimx, transform_y, **kwargs):
+def initialize_ace_thompson(
+    obj_function, model_bound, model, dimx, transform_y, **kwargs
+):
     ts_acq_rule = ThompsonSamplingAcqRule(
         dimx=dimx, yopt_q=kwargs["yopt_q"], impro_alpha=kwargs["impro_alpha"]
     )
-    bo_thompson = BayesianOptimizerACE(obj_function, model, model_bound, ts_acq_rule, transform_y=transform_y)
+    bo_thompson = BayesianOptimizerACE(
+        obj_function, model, model_bound, ts_acq_rule, transform_y=transform_y
+    )
     return bo_thompson
 
 
@@ -160,14 +164,18 @@ def initialize_ace_mes(
         thomp_yopt_q=kwargs["thomp_yopt_q"],
         thomp_impro_alpha=kwargs["thomp_impro_alpha"],
     )
-    bo_mes = BayesianOptimizerACE(obj_function, model, model_bound, mes_acq_rule, transform_y=transform_y)
+    bo_mes = BayesianOptimizerACE(
+        obj_function, model, model_bound, mes_acq_rule, transform_y=transform_y
+    )
     return bo_mes
 
 
 def initialize_random(obj_function, model_bound, model, transform_y, **kwargs):
     random_acq = RandomAcqRule(x_ranges=model_bound)
     # note that this model and the transform is not used, it is just a dummy for the api
-    bo_random = BayesianOptimizerACE(obj_function, model, model_bound, random_acq, transform_y=transform_y)
+    bo_random = BayesianOptimizerACE(
+        obj_function, model, model_bound, random_acq, transform_y=transform_y
+    )
     return bo_random
 
 
@@ -176,8 +184,10 @@ def initialize_gp_mes(obj_function, model_bound, transform_y, **kwargs):
     return botorch_mes
 
 
-def initialize_gp_thompson(obj_function, model_bound, transform_y,**kwargs):
-    botorch_thompson = GaussianProcessThompsonSampling(obj_function, model_bound, transform_y=transform_y)
+def initialize_gp_thompson(obj_function, model_bound, transform_y, **kwargs):
+    botorch_thompson = GaussianProcessThompsonSampling(
+        obj_function, model_bound, transform_y=transform_y
+    )
     return botorch_thompson
 
 
@@ -190,7 +200,9 @@ def initialize_tnpd_thompson(
     **kwargs,
 ):
     tnpdts_acq_rule = TNPDTSAcqRule(kwargs["n_cand_points"], dimx, kwargs["correlated"])
-    bo_tnpd_ts = BayesianOptimizerACE(obj_function, model, model_bound, tnpdts_acq_rule, transform_y=transform_y)
+    bo_tnpd_ts = BayesianOptimizerACE(
+        obj_function, model, model_bound, tnpdts_acq_rule, transform_y=transform_y
+    )
     return bo_tnpd_ts
 
 

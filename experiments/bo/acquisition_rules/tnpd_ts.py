@@ -55,7 +55,6 @@ class TNPDTSAcqRule:
     def sample(
         self, model, batch_autoreg, x_ranges=None, n_samples=1, record_history=False
     ):
-
         # sample from posterior
         if self.correlated:
             # n_cand * (dimx^2)
