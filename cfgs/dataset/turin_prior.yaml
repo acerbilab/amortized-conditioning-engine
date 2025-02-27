@@ -1,4 +1,4 @@
-_target_: src.dataset.sampler_twoway_pi.Sampler
+_target_: src.dataset.sampler_sbi_prior.Sampler
 name : "turin_pi"
 dim_input: 2
 dim_tar: 1

@@ -48,13 +48,15 @@ class GaussianHead(nn.Module):
             outs.mean = mean
             outs.scale = std
             outs.samples = pred_tar.sample((num_samples,)).movedim(0, 2)
+            outs.tar_ll = pred_tar.log_prob(batch.yt).sum(-1)
+            outs.losses = -outs.tar_ll
         else:
             outs.tar_ll = (
                 pred_tar.log_prob(batch.yt).sum(-1).mean()
                 if reduce_ll
                 else pred_tar.log_prob(batch.yt).sum(-1)
             )
-            outs.loss = -(outs.tar_ll)
+            outs.loss = -outs.tar_ll
         return outs
 
 
@@ -200,7 +202,7 @@ class MixtureGaussian(nn.Module):
                 outs.discrete_mask = discrete_mask
                 outs.continuous_mask = continuous_mask
 
-            outs.losses = log_probs
+            outs.losses = -log_probs
 
         outs.loss = loss  # weighted negative log-likelihood
         outs.tar_ll = tar_ll  # log-likelihood
@@ -367,4 +369,4 @@ def inverse_softplus(y: torch.Tensor) -> torch.Tensor:
     return torch.log(torch.special.expm1(y))
 
 
-# if __name__ == "__main__":
+

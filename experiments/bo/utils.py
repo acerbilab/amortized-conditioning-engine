@@ -3,7 +3,7 @@ import os
 import hydra
 from hydra import initialize, compose
 from src.model.base import BaseTransformer
-from src.dataset.sampler_twoway import Sampler
+from src.dataset.sampler_sbi import Sampler
 from src.dataset.optimization.synthetic_optnd_2way import (
     OptimizationGPND2WayManyKernelsFast,
 )

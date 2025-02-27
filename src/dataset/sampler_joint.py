@@ -4,6 +4,10 @@ import copy
 
 
 class Sampler(object):
+    """
+    Joint sampler for SBI tasks, it will generate same data for standard and
+    prior-injection cases to make sure the comparison is fair.
+    """
     def __init__(
         self,
         problem,

@@ -1,0 +1,27 @@
+_target_: src.dataset.sampler_sbi_prior.Sampler
+name : "oup_pi"
+dim_input: 2
+dim_tar: 1
+num_ctx: 'random'
+x_range: [-2, 12]
+num_latent: 2
+num_bins: 100
+device: 'cpu'
+
+ctx_tar_sampler: 'onesidesampler'
+n_total_points: 25 # not needed
+min_ctx_points: 10
+max_ctx_points: 25
+
+loss_latent_weight: 1
+loss_data_weight: 1
+
+discrete_index: null
+
+problem:
+  _target_: src.dataset.sbi.oup.OUPPriorInjection
+  x_file: 'data/x_oup_pi_10000.pt'
+  theta_file: 'data/theta_oup_pi_10000.pt'
+  weights_file: 'data/weights_oup_pi_10000.pt'
+  batch_size: ${batch_size}
+

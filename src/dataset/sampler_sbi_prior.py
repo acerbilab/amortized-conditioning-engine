@@ -3,145 +3,6 @@ from attrdict import AttrDict
 from .sampler_utils import random_bool_vector
 
 
-def bern_unif_sampler(
-    problem,
-    batch_size,
-    num_ctx,
-    num_latent,
-    min_ctx_points,
-    max_ctx_points,
-    n_total_points,
-    num_bins,
-    x_range,
-    device,
-    p=0.5,
-):
-    batch = AttrDict()
-
-    if num_ctx == "random":
-        num_ctx = torch.randint(
-            low=min_ctx_points, high=max_ctx_points + 1, size=[1]
-        ).item()
-
-    xyd, xyl = problem.get_data(
-        batch_size=batch_size,
-        num_bins=num_bins,
-        n_total_points=n_total_points - num_latent,
-        n_ctx_points=int(num_ctx),
-        x_range=x_range,
-        device=device,
-    )
-
-    latent_on_ctx = torch.bernoulli(torch.tensor([p])).bool()
-
-    if latent_on_ctx and (num_latent > 1):
-        data_in_ctx = xyd[:, :num_ctx, :]
-        data_in_tar = xyd[:, num_ctx:, :]
-
-        num_latent_ctx = torch.randint(
-            1, num_latent + 1, (xyd.shape[0],)
-        )  # [batch_size]
-        num_latent_ctx[num_latent_ctx > num_ctx] = (
-            num_ctx  # Ensure num_latent_ctx <= num_ctx
-        )
-
-        mask = [random_bool_vector(num_latent, i) for i in num_latent_ctx]
-        mask = torch.stack(mask, dim=0)[:, :, None].expand(
-            -1, -1, xyl.shape[-1]
-        )  # [batch_size, num_latent, feature_dim]
-
-        latent_known = xyl[mask]
-        latent_unknown = xyl[~mask]
-
-        # known latents
-        # [B, n_known, 3]
-        context_known = latent_known[:, :, :3]  # marker, 0, true value
-
-        # unknown latents, discard real value
-        # [B, n_unknown, 2+100]
-        context_unknown = torch.zeros_like(latent_unknown[:, :, :-1])
-        context_unknown[:, :, 0] = latent_unknown[:, :, 0]  # latent marker
-        context_unknown[:, :, 1] = latent_unknown[:, :, 1]  # 0
-        context_unknown[:, :, 2:] = latent_unknown[:, :, 3:]  # bin weights
-
-        # latents in target set
-        latent_in_tar = torch.zeros(latent_unknown.size(0), latent_unknown.size(1), 3)
-        latent_in_tar[:, :, 0:3] = latent_unknown[:, :, 0:3]  # discard bin weights
-
-        # construct target set
-        xyt = torch.concat((data_in_tar, latent_in_tar), dim=1)
-        batch.xt = xyt[:, :, :-1]  # [B, Nt, 2] (marker, 0 for latent and x for data)
-        batch.yt = xyt[:, :, -1:]  # [B, Nt, 1] (y for data and theta)
-
-        # construct context set
-        batch.xc_data = data_in_ctx[:, :, :2]  # [B, Nc, 2]
-        batch.yc_data = data_in_ctx[:, :, -1:]  # [B, Nc, 1] (y for data)
-
-        batch.xc_latent_known = context_known[:, :, :2]  # [B, n_known, 2]
-        batch.yc_latent_known = context_known[
-            :, :, [2]
-        ]  # [B, n_known, 1] true value for known latents
-
-        batch.xc_latent_unknown = context_unknown[:, :, :2]  # [B, n_unknown, 2]
-        batch.bins_latent_unknown = context_unknown[
-            :, :, 2:
-        ]  # [B, n_unknown, 100] bin weights for unknown latents
-
-        batch.xc = torch.cat(
-            [batch.xc_data, batch.xc_latent_known, batch.xc_latent_unknown], dim=1
-        )  # [B, Nc+Nl, 2]
-
-    elif latent_on_ctx and (num_latent == 1):
-        data_in_ctx = xyd[:, :num_ctx, :]
-        data_in_tar = xyd[:, num_ctx:, :]
-
-        # construct context set
-        batch.xc_data = data_in_ctx[:, :, :2]  # [B, Nc, 2]
-        batch.yc_data = data_in_ctx[:, :, -1:]  # [B, Nc, 1] (y for data)
-
-        batch.xc_latent_known = xyl[:, :, :2]  # [B, n_known, 2]
-        batch.yc_latent_known = xyl[
-            :, :, [2]
-        ]  # [B, n_known, 1] true value for known latents
-
-        batch.xc_latent_unknown = None
-        batch.bins_latent_unknown = None
-
-        batch.xc = torch.cat([batch.xc_data, batch.xc_latent_known], dim=1)
-
-        # construct target set
-        xyt = data_in_tar
-        batch.xt = xyt[:, :, :-1]  # [B, Nt, 2] (marker, 0 for latent and x for data)
-        batch.yt = xyt[:, :, -1:]  # [B, Nt, 1] (y for data and theta)
-
-    else:
-        # No latent points in context
-        data_in_ctx = xyd[:, :num_ctx, :]
-        data_in_tar = xyd[:, num_ctx:, :]
-
-        # construct context set
-        batch.xc_data = data_in_ctx[:, :, :2]  # [B, Nc, 2]
-        batch.yc_data = data_in_ctx[:, :, -1:]  # [B, Nc, 1] (y for data)
-
-        batch.xc_latent_known = None
-        batch.yc_latent_known = None
-
-        batch.xc_latent_unknown = xyl[:, :, :2]  # [B, n_unknown, 2]
-        batch.bins_latent_unknown = xyl[
-            :, :, 3:
-        ]  # [B, n_unknown, 100] bin weights for unknown latents
-
-        batch.xc = torch.cat([batch.xc_data, batch.xc_latent_unknown], dim=1)
-
-        # construct target set
-        latent_in_tar = xyl[:, :, :3]
-        xyt = torch.concat((data_in_tar, latent_in_tar), dim=1)
-        batch.xt = xyt[:, :, :-1]  # [B, Nt, 2] (marker, 0 for latent and x for data)
-        batch.yt = xyt[:, :, -1:]  # [B, Nt, 1] (y for data and theta)
-
-    return batch
-
-
 def uniform_sampler_one_side(
     problem,
     batch_size,
@@ -226,6 +87,22 @@ def uniform_sampler_one_side(
     )  # [B, Nc+Nl, 2]
 
     return batch
+
+
+def bern_unif_sampler(
+    problem,
+    batch_size,
+    num_ctx,
+    num_latent,
+    min_ctx_points,
+    max_ctx_points,
+    n_total_points,
+    num_bins,
+    x_range,
+    device,
+    p=0.5,
+):
+    raise NotImplementedError
 
 
 def sample_for_gaussian(
@@ -775,6 +652,5 @@ ctxtar_sampler_dict = {
     # "predict_y_fixed": uniform_sampler_predict_y_fixed, # TODO
     "bernuniformsampler": bern_unif_sampler,
     "onesidesampler": uniform_sampler_one_side,
-    "onesidesampler_delta": uniform_sampler_one_side_delta,
     "gaussian_eval": sample_for_gaussian,
 }
