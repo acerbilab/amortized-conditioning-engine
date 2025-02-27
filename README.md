@@ -169,3 +169,27 @@ python bo_plot.py result_path=results/bo_run_strongprior/ plot_path=results/bo_p
 python bo_plot.py result_path=results/bo_run_weakprior/ plot_path=results/bo_plot/ prefix_file_name="weakprior_"
 ```
 
+## Simulation-based Inference
+
+### Training SBI tasks
+Before training the model, we first need to generate offline datasets using the following command:
+
+```bash
+python src/dataset/sbi/turin.py
+python src/dataset/sbi/oup.py
+python src/dataset/sbi/sir.py
+```
+This will generate offline datasets for both the prior and non-prior cases. In the non-prior case, the prior information is omitted. 
+The offline data will be saved in `data/`. Once the offline data is generated, we can proceed with training the models.
+
+Training can be performed using the following commands:
+```bash
+# Non-prior case
+python -m train_sbi.py dataset=turin embedder=embedder_marker_skipcon
+
+# prior-injection case
+python -m train_sbi.py dataset=turin_prior embedder=embedder_marker_prior_sbi
+```
+
+### Evaluating SBI tasks
+After training the models, you can use the notebooks in `experiments/sbi` to evaluate the models on the SBI tasks.
