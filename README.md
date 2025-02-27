@@ -138,30 +138,30 @@ Full script to reproduce the prior experiments is as follows:
 # with prior experiments
 
 # main paper with prior experiments
-sh run_bo_prior.sh 2d_michalewicz_prior 0.25 10 results/bo_run_weakprior/
-sh run_bo_prior.sh 2d_michalewicz_prior 0.10 10 results/bo_run_strongprior/
+sh run_bo_prior.sh 2d_michalewicz_prior 0.5 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 2d_michalewicz_prior 0.2 10 results/bo_run_strongprior/
 
-sh run_bo_prior.sh 3d_levy_prior 0.25 10 results/bo_run_weakprior/
-sh run_bo_prior.sh 3d_levy_prior 0.10 10 results/bo_run_strongprior/
+sh run_bo_prior.sh 3d_levy_prior 0.5 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 3d_levy_prior 0.2 10 results/bo_run_strongprior/
 
 # extended experiments with prior in appendix
-sh run_bo_prior.sh 1d_ackley_prior 0.25 10 results/bo_run_weakprior/
-sh run_bo_prior.sh 1d_ackley_prior 0.10 10 results/bo_run_strongprior/
+sh run_bo_prior.sh 1d_ackley_prior 0.5 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 1d_ackley_prior 0.2 10 results/bo_run_strongprior/
 
-sh run_bo_prior.sh 1d_gramacy_lee_prior 0.25 10 results/bo_run_weakprior/
-sh run_bo_prior.sh 1d_gramacy_lee_prior 0.10 10 results/bo_run_strongprior/
+sh run_bo_prior.sh 1d_gramacy_lee_prior 0.5 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 1d_gramacy_lee_prior 0.2 10 results/bo_run_strongprior/
 
-sh run_bo_prior.sh 1d_neg_easom_prior 0.25 10 results/bo_run_weakprior/
-sh run_bo_prior.sh 1d_neg_easom_prior 0.10 10 results/bo_run_strongprior/
+sh run_bo_prior.sh 1d_neg_easom_prior 0.5 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 1d_neg_easom_prior 0.2 10 results/bo_run_strongprior/
 
-sh run_bo_prior.sh 2d_branin_scaled_prior 0.25 10 results/bo_run_weakprior/
-sh run_bo_prior.sh 2d_branin_scaled_prior 0.10 10 results/bo_run_strongprior/
+sh run_bo_prior.sh 2d_branin_scaled_prior 0.5 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 2d_branin_scaled_prior 0.2 10 results/bo_run_strongprior/
 
-sh run_bo_prior.sh 2d_ackley_prior 0.25 10 results/bo_run_weakprior/
-sh run_bo_prior.sh 2d_ackley_prior 0.10 10 results/bo_run_strongprior/
+sh run_bo_prior.sh 2d_ackley_prior 0.5 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 2d_ackley_prior 0.2 10 results/bo_run_strongprior/
 
-sh run_bo_prior.sh 3d_hartmann_prior 0.25 10 results/bo_run_weakprior/
-sh run_bo_prior.sh 3d_hartmann_prior 0.10 10 results/bo_run_strongprior/
+sh run_bo_prior.sh 3d_hartmann_prior 0.5 10 results/bo_run_weakprior/
+sh run_bo_prior.sh 3d_hartmann_prior 0.2 10 results/bo_run_strongprior/
 
 
 # plotting results
