@@ -429,13 +429,5 @@ def generate_sir_pi(num_samples):
 
 
 if __name__ == "__main__":
-    # sir_model = SIR()
-    # beta = sir_model.beta_dist.sample()
-    # gamma = sir_model.gamma_dist.sample()
-    # batch_xyd, batch_xyl = sir_model.get_data(batch_size=5, max_num_points=30)
-    # print(batch_xyd.shape, batch_xyl.shape)
-    #
-    # print(batch_xyd[0])
-    # print(batch_xyl[0])
     generate_sir_pi(10000)
     generate_sir(10000)

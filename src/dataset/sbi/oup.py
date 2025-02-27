@@ -341,25 +341,5 @@ def generate_oup_pi(num_samples):
 
 
 if __name__ == "__main__":
-    # oup_model = OUP()
-    # theta_1 = oup_model.theta_1.sample()
-    # theta_2 = oup_model.theta_2.sample()
-    # batch_xyd, batch_xyl = oup_model.get_data(batch_size=5, max_num_points=25)
-    # print(batch_xyd.shape, batch_xyl.shape)
-    #
-    # print(batch_xyd[0])
-    # print(batch_xyl[0])
-
-    # x_file = '../../../data/x_npe_oup_200000.pt'
-    # theta_file = '../../../data/theta_npe_oup_200000.pt'
-    # batch_size = 16
-    #
-    # oup = OUP(x_file, theta_file, batch_size=batch_size)
-    #
-    # for epoch in range(1):
-    #     for _ in range(len(oup.dataloader)):
-    #         xyd_batch, xyl_batch = oup.get_data()
-    #         print(xyd_batch)
-    #         print(xyl_batch)
-
+    generate_oup(10000)
     generate_oup_pi(10000)

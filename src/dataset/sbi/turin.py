@@ -457,16 +457,5 @@ def generate_turin_pi(num_samples):
 
 
 if __name__ == "__main__":
-    # import matplotlib.pyplot as plt
-    #
-    # sampler = Turin(order="fixed")
-    # batch_xyd, batch_xyl = sampler.get_data(batch_size=100, num_ctx=20, device="cpu")
-    # print(batch_xyd.shape)
-    #
-    # for i in range(3):
-    #     plt.plot(batch_xyd[i, :, 1], batch_xyd[i, :, 2])
-    #     plt.xlabel("time")
-    #     plt.ylabel("power")
-    # plt.show()
-
+    generate_turin(10000)
     generate_turin_pi(10000)
