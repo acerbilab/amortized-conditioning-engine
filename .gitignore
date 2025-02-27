@@ -153,16 +153,13 @@ dmypy.json
 cython_debug/
 
 #wandb and hydra
-code/wandb/
-code/outputs/
-code/multirun/
-code/notebooks/results/
-code/notebooks/plots/
+wandb/
+outputs/
 
-code/results/
-code/sbi-logs/
-code/figures/
-code/data/
+results/
+sbi-logs/
+figures/
+data/
 .idea/
 
 
