@@ -35,15 +35,11 @@ class JointPriorSampler:
 
     def conditional_prior(self, theta_1_value):
         """
-        Compute the conditional prior p(theta | theta_another)
+        Compute the conditional prior p(theta | theta_another) = N(mean_theta, std_theta)
         """
-        mu_theta_given_another = self.mean_theta + self.rho * (
-            self.std_theta / self.std_another
-        ) * (theta_1_value - self.mean_another)
-        sigma_thet_given_another = torch.sqrt((1 - self.rho**2) * self.std_theta**2)
-        return self.gaussian_to_binned_distribution(
-            mu_theta_given_another, sigma_thet_given_another
-        )
+        mean_theta = self.mean_theta + self.rho * (self.std_theta / self.std_another) * (theta_1_value - self.mean_another)
+        std_theta = torch.sqrt(torch.tensor(1 - self.rho**2) * torch.tensor(self.std_theta**2))
+        return self.gaussian_to_binned_distribution(mean_theta, std_theta)
 
     def sample_uniform_bin_weights(self):
         bin_probs = torch.ones(self.num_bins) / self.num_bins
@@ -57,9 +53,7 @@ class JointPriorSampler:
         cdf_right = Normal(mean, std).cdf(linspace[1:])
         cdf_left = Normal(mean, std).cdf(linspace[:-1])
         bin_probs = cdf_right - cdf_left
-        bin_probs /= (
-            bin_probs.sum()
-        )  # Normalize to ensure it's a valid probability distribution
+        bin_probs /= (bin_probs.sum())  # Normalize to ensure it's a valid probability distribution
         return bin_probs
 
 
@@ -81,6 +75,12 @@ class Gaussian(object):
 
         self.num_bins = 100
 
+        self.fixed_data_points = torch.tensor([[-0.5350],
+                                               [ 0.2474],
+                                               [0.5929],
+                                               [-0.0309],
+                                               [-0.3121]])
+
     def get_data(
         self,
         batch_size=16,
@@ -92,12 +92,8 @@ class Gaussian(object):
     ):
         sampled_points = []
         for i in range(batch_size):
-            theta_1_sampler = PriorSampler(
-                num_bins, -1, 1, self.mean_prior_theta_1, self.std_prior_theta_1
-            )
-            theta_2_sampler = PriorSampler(
-                num_bins, 0.05, 1, self.mean_prior_theta_2, self.std_prior_theta_2
-            )
+            theta_1_sampler = PriorSampler(num_bins, -1, 1, self.mean_prior_theta_1, self.std_prior_theta_1)
+            theta_2_sampler = PriorSampler(num_bins, 0.05, 1, self.mean_prior_theta_2, self.std_prior_theta_2)
 
             bin_weights_1 = theta_1_sampler.sample_bin_weights("mixture")
             bin_weights_2 = theta_2_sampler.sample_bin_weights("mixture")
@@ -120,7 +116,49 @@ class Gaussian(object):
         )  # [B,Nc,3]
         return batch_xyd, batch_xyl
 
-    def get_data_with_fixed_std(
+    def get_fixed_data(
+        self,
+        batch_size=16,
+        n_total_points=None,
+        n_ctx_points=20,
+        x_range=None,
+        num_bins=None,
+        device="cpu",
+    ):
+        """
+        Fix data points, but sample theta's prior
+        """
+        sampled_points = []
+        for i in range(batch_size):
+            theta_1_sampler = PriorSampler(
+                num_bins, -1, 1, self.mean_prior_theta_1, self.std_prior_theta_1
+            )
+            theta_2_sampler = PriorSampler(
+                num_bins, 0.05, 1, self.mean_prior_theta_2, self.std_prior_theta_2
+            )
+
+            bin_weights_1 = theta_1_sampler.sample_bin_weights("mixture")
+            bin_weights_2 = theta_2_sampler.sample_bin_weights("mixture")
+
+            theta_1 = theta_1_sampler.sample_theta_from_bin_distribution(bin_weights_1)
+            theta_2 = theta_2_sampler.sample_theta_from_bin_distribution(bin_weights_2)
+            X = self.fixed_data_points
+            sampled_points.append(
+                self.simulate_gaussian_with_fixed_data(
+                    X, theta_1, theta_2, bin_weights_1, bin_weights_2, n_ctx_points
+                )
+            )
+
+        # Stack the sampled points into tensors
+        batch_xyd = torch.stack(
+            [point[0] for point in sampled_points], dim=0
+        )  # [B,Nc,3]
+        batch_xyl = torch.stack(
+            [point[1] for point in sampled_points], dim=0
+        )  # [B,Nc,3]
+        return batch_xyd, batch_xyl
+
+    def get_data_with_shift_mu_prior(
         self,
         batch_size=16,
         n_total_points=None,
@@ -129,6 +167,9 @@ class Gaussian(object):
         num_bins=100,
         device="cpu",
     ):
+        """
+        Fix data and sigma's prior, shift mu's prior
+        """
         sampled_points = []
         theta_1_means = torch.linspace(-1, 1, batch_size)
         theta_1_fixed_std = torch.tensor([0.5])
@@ -142,20 +183,17 @@ class Gaussian(object):
             num_bins, 0.05, 1, self.mean_prior_theta_2, self.std_prior_theta_2
         )
 
-        bin_weights_1_list = [
-            theta_1_sampler.gaussian_to_binned_distribution(mean, theta_1_fixed_std)
+        bin_weights_1_list = [ theta_1_sampler.gaussian_to_binned_distribution(mean, theta_1_fixed_std)
             for mean in theta_1_means
         ]
-        bin_weights_2_list = [
-            theta_2_sampler.gaussian_to_binned_distribution(
-                theta_2_fixed_mean, theta_2_fixed_std
-            )
+        bin_weights_2_list = [theta_2_sampler.gaussian_to_binned_distribution(theta_2_fixed_mean, theta_2_fixed_std)
             for _ in theta_1_means
         ]
 
         theta_1 = torch.tensor([0.0])
         theta_2 = torch.tensor([0.5])
         X = Normal(theta_1, theta_2).sample((n_ctx_points,))
+
         for i in range(batch_size):
             bin_weights_1 = bin_weights_1_list[i]
             bin_weights_2 = bin_weights_2_list[i]
@@ -167,15 +205,11 @@ class Gaussian(object):
             )  # we use fixed num_points
 
         # Stack the sampled points into tensors
-        batch_xyd = torch.stack(
-            [point[0] for point in sampled_points], dim=0
-        )  # [B,Nc,3]
-        batch_xyl = torch.stack(
-            [point[1] for point in sampled_points], dim=0
-        )  # [B,Nc,3]
+        batch_xyd = torch.stack([point[0] for point in sampled_points], dim=0)  # [B,Nc,3]
+        batch_xyl = torch.stack([point[1] for point in sampled_points], dim=0)  # [B,Nc,3]
         return batch_xyd, batch_xyl
 
-    def get_data_with_fixed_mean(
+    def get_data_with_shift_sigma_prior(
         self,
         batch_size=16,
         n_total_points=None,
@@ -184,6 +218,9 @@ class Gaussian(object):
         num_bins=100,
         device="cpu",
     ):
+        """
+        Fix data and mu's prior, shift sigma's prior
+        """
         sampled_points = []
         theta_1_fixed_mean = torch.tensor([0.0])
         theta_1_fixed_std = torch.tensor([0.5])
@@ -198,9 +235,7 @@ class Gaussian(object):
         )
 
         bin_weights_1_list = [
-            theta_1_sampler.gaussian_to_binned_distribution(
-                theta_1_fixed_mean, theta_1_fixed_std
-            )
+            theta_1_sampler.gaussian_to_binned_distribution(theta_1_fixed_mean, theta_1_fixed_std)
             for _ in theta_2_means
         ]
         bin_weights_2_list = [
@@ -211,6 +246,7 @@ class Gaussian(object):
         theta_1 = torch.tensor([0.0])
         theta_2 = torch.tensor([0.5])
         X = Normal(theta_1, theta_2).sample((n_ctx_points,))
+
         for i in range(batch_size):
             bin_weights_1 = bin_weights_1_list[i]
             bin_weights_2 = bin_weights_2_list[i]
@@ -222,12 +258,8 @@ class Gaussian(object):
             )  # we use fixed num_points
 
         # Stack the sampled points into tensors
-        batch_xyd = torch.stack(
-            [point[0] for point in sampled_points], dim=0
-        )  # [B,Nc,3]
-        batch_xyl = torch.stack(
-            [point[1] for point in sampled_points], dim=0
-        )  # [B,Nc,3]
+        batch_xyd = torch.stack([point[0] for point in sampled_points], dim=0)  # [B,Nc,3]
+        batch_xyl = torch.stack([point[1] for point in sampled_points], dim=0)  # [B,Nc,3]
         return batch_xyd, batch_xyl
 
     def get_data_ar(
@@ -296,7 +328,8 @@ class Gaussian(object):
         # [0.1704],
         # [0.3239],
         # [-0.7386]])
-        # X = torch.tensor([[-0.70885324], [0.522384], [0.42874736], [0.3709027], [0.87834007]])
+        X = torch.tensor([[-0.70885324], [0.522384], [0.32874736], [0.3709027], [0.2834007]])
+
 
         theta_1_sampler = PriorSampler(
             num_bins, -1, 1, self.mean_prior_theta_1, self.std_prior_theta_1
@@ -436,11 +469,7 @@ class Gaussian(object):
         self, theta_1, theta_2, bin_weights_1, bin_weights_2, num_points
     ):
         X = Normal(theta_1, theta_2).sample((num_points,)).unsqueeze(-1)
-        # X = torch.tensor([[-0.5350],
-        # [ 0.2474],
-        # [0.5929],
-        # [-0.0309],
-        # [-0.3121]])
+
 
         xd = torch.zeros(num_points).unsqueeze(-1).float()
         yd = X
