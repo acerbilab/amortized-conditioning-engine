@@ -41,6 +41,12 @@ This code is released under the Apache 2.0 License.
 
 # Training and Running experiments
 
+## Gaussian Process
+
+```bash
+python train.py -m dataset=gp_sampler_kernel
+```
+
 ## Bayesian Optimization
 
 ### Training BO
