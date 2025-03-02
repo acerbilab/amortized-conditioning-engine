@@ -39,7 +39,13 @@ class GaussianHead(nn.Module):
         if predict:
             outs.mean = mean
             outs.scale = std
-            outs.samples = pred_tar.sample((num_samples,)).movedim(0, 2)
+            # Sample from distribution and move first dimension (num_samples) to third position
+            samples = pred_tar.sample((num_samples,)).movedim(0, 2)
+            # Shape of samples is now [B, T, num_samples, dim_output]
+            # If dim_output is 1, we should squeeze the last dimension to maintain original behavior
+            if mean.size(-1) == 1:
+                samples = samples.squeeze(-1)  # [B, T, num_samples]
+            outs.samples = samples
         else:
             outs.tar_ll = pred_tar.log_prob(batch.yt).mean() if reduce_ll else pred_tar.log_prob(batch.yt)
             outs.loss = -(outs.tar_ll)
@@ -242,7 +248,9 @@ class MixtureGaussian(nn.Module):
         - num_samples: Number of samples to generate
         
         Returns:
-        - samples: Predicted samples
+
+        - samples: Predicted samples with shape [B, T, num_samples] if dim_y=1 or [B, T, num_samples, dim_y] otherwise
+
         - median: Median values
         - q1: First quartile values
         - q3: Third quartile values
@@ -273,7 +281,12 @@ class MixtureGaussian(nn.Module):
         q1 = torch.quantile(samples, 0.25, dim=2)
         median = torch.quantile(samples, 0.50, dim=2)
         q3 = torch.quantile(samples, 0.75, dim=2)
+
+        # If dim_y is 1, remove the last dimension to maintain backward compatibility
+        if self.dim_y == 1:
+            samples = samples.squeeze(-1)  # [B, T, num_samples]
         
+
         return samples, median, q1, q3
     
     @staticmethod
