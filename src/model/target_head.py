@@ -66,7 +66,7 @@ class MixtureGaussian(nn.Module):
         loss_latent_weight: float = 1.0,
         loss_data_weight: float = 1.0,
         discrete_index: Optional[List[int]] = None,
-        bias_init: bool = False,
+        bias_init: bool = True,
     ) -> None:
         
         super().__init__()
