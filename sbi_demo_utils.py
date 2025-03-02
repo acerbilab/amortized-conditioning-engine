@@ -90,13 +90,42 @@ def train_npe(prior, theta_npe, x_npe):
     return posterior
 
 
-def RMSE(gt, samples):
+def RMSE_old(gt, samples):
     """
     Computes the Root Mean Squared Error (RMSE) between the ground truth and a set of samples.
     """
     gt = gt.expand(-1, -1, samples.shape[-1])
     dist = torch.sqrt(torch.mean((gt - samples) ** 2))
     return dist
+
+
+def RMSE(gt, samples):
+    """
+    Computes the average of per-point Root Mean Squared Error (RMSE).
+
+    Args:
+        gt: Ground truth with shape [N, D]
+        samples: Samples with shape [N, D, M]
+
+    Returns:
+        Average RMSE across all test points
+    """
+    # Expand gt to match samples shape
+    gt = gt.expand(-1, -1, samples.shape[-1])  # Shape: [N, D, M]
+
+    # Calculate squared error
+    squared_error = (gt - samples) ** 2  # Shape: [N, D, M]
+
+    # Average across dimensions (D) and samples (M) for each test point
+    per_point_mse = torch.mean(squared_error, dim=(1, 2))  # Shape: [N]
+
+    # Take sqrt to get RMSE for each test point
+    per_point_rmse = torch.sqrt(per_point_mse)  # Shape: [N]
+
+    # Average across all test points
+    avg_rmse = torch.mean(per_point_rmse)  # Scalar
+
+    return avg_rmse
 
 
 def get_coverage_probs(z, u):
