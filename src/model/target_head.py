@@ -66,7 +66,7 @@ class MixtureGaussian(nn.Module):
         loss_latent_weight: float = 1.0,
         loss_data_weight: float = 1.0,
         discrete_index: Optional[List[int]] = None,
-        bias_init: bool = True,
+        bias_init: bool = False,
     ) -> None:
         
         super().__init__()
@@ -248,7 +248,9 @@ class MixtureGaussian(nn.Module):
         - num_samples: Number of samples to generate
         
         Returns:
+
         - samples: Predicted samples with shape [B, T, num_samples] if dim_y=1 or [B, T, num_samples, dim_y] otherwise
+
         - median: Median values
         - q1: First quartile values
         - q3: Third quartile values
@@ -279,11 +281,12 @@ class MixtureGaussian(nn.Module):
         q1 = torch.quantile(samples, 0.25, dim=2)
         median = torch.quantile(samples, 0.50, dim=2)
         q3 = torch.quantile(samples, 0.75, dim=2)
-        
+
         # If dim_y is 1, remove the last dimension to maintain backward compatibility
         if self.dim_y == 1:
             samples = samples.squeeze(-1)  # [B, T, num_samples]
         
+
         return samples, median, q1, q3
     
     @staticmethod
