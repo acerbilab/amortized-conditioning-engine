@@ -41,6 +41,17 @@ This code is released under the Apache 2.0 License.
 
 # Training and Running experiments
 
+## Regression 
+
+Training GP:
+```bash
+python train.py -m dataset=gp_sampler_kernel
+```
+Training MNIST:
+```bash
+python train.py -m dataset=image_sampler
+```
+
 ## Bayesian Optimization
 
 ### Training BO
