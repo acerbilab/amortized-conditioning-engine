@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-    name="infMachine",
+    name="ace",
     packages=["src"],
     license="",
     python_requires="~=3.9",

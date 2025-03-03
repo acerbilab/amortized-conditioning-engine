@@ -1,27 +1,28 @@
 _target_: src.dataset.sampler_sbi.Sampler
-name : "turin"
+name : "oup"
 num_ctx: 'random'
-min_ctx_points: 50
-max_ctx_points: 101
+min_ctx_points: 10
+max_ctx_points: 25
 
-num_latent: 4
+num_latent: 2
 
 dim_input: 2
 dim_tar: 1
 
-n_total_points: 101 # not needed
-x_range: [0, 1]
+n_total_points: 25 # not needed
+x_range: [-2, 12]
 device: 'cpu'
 ctx_tar_sampler: 'bernuniformsampler'
+#ctx_tar_sampler: 'one_side'
 discrete_index: null
 
 loss_latent_weight: 1
 loss_data_weight: 1
 
 problem:
-  _target_: src.dataset.sbi.turin.Turin
-  x_file: 'data/x_turin_10000.pt'
-  theta_file: 'data/theta_turin_10000.pt'
+  _target_: src.dataset.sbi.oup.OUP
+  x_file: 'data/x_oup_10000.pt'
+  theta_file: 'data/theta_oup_10000.pt'
   batch_size: ${batch_size}
   shuffle: True
   order: 'random'

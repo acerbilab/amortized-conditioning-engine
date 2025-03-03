@@ -39,6 +39,7 @@ class GaussianHead(nn.Module):
         if predict:
             outs.mean = mean
             outs.scale = std
+
             # Sample from distribution and move first dimension (num_samples) to third position
             samples = pred_tar.sample((num_samples,)).movedim(0, 2)
             # Shape of samples is now [B, T, num_samples, dim_output]
@@ -46,9 +47,12 @@ class GaussianHead(nn.Module):
             if mean.size(-1) == 1:
                 samples = samples.squeeze(-1)  # [B, T, num_samples]
             outs.samples = samples
+            outs.tar_ll = pred_tar.log_prob(batch.yt).sum(-1)
+            outs.losses = -outs.tar_ll
         else:
             outs.tar_ll = pred_tar.log_prob(batch.yt).mean() if reduce_ll else pred_tar.log_prob(batch.yt)
             outs.loss = -(outs.tar_ll)
+
         return outs
 
 
@@ -201,6 +205,9 @@ class MixtureGaussian(nn.Module):
                 outs.discrete_labels = discrete_labels
                 outs.discrete_mask = discrete_mask
                 outs.continuous_mask = continuous_mask
+
+
+            outs.losses = -log_probs
 
         outs.loss = loss  # weighted negative log-likelihood
         outs.tar_ll = tar_ll  # log-likelihood
@@ -370,4 +377,6 @@ def sample(
     return samples.t()
 
 def inverse_softplus(y: torch.Tensor) -> torch.Tensor:
+
     return torch.log(torch.special.expm1(y))
+
