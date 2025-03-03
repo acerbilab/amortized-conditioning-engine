@@ -185,11 +185,17 @@ The offline data will be saved in `data/`. Once the offline data is generated, w
 Training can be performed using the following commands:
 ```bash
 # Non-prior case
+python -m train_sbi.py dataset=oup embedder=embedder_marker_skipcon
+python -m train_sbi.py dataset=sir embedder=embedder_marker_skipcon
 python -m train_sbi.py dataset=turin embedder=embedder_marker_skipcon
 
 # prior-injection case
+python -m train_sbi.py dataset=oup_prior embedder=embedder_marker_prior_sbi
+python -m train_sbi.py dataset=sir_prior embedder=embedder_marker_prior_sbi
 python -m train_sbi.py dataset=turin_prior embedder=embedder_marker_prior_sbi
 ```
 
 ### Evaluating SBI tasks
-After training the models, you can use the notebooks in `experiments/sbi` to evaluate the models on the SBI tasks.
+After training the models, you can put your trained ckpt models and hydra config folders under `results/SIMULATOR`. E.g., for standard OUP task, you can put your ACE models and configs under `results/oup` and ACEP under `results/oup_pi`.
+
+You can then use the notebooks in `experiments/sbi` to evaluate the models on the SBI tasks. Each notebook contains the NPE and NRE baselines, also including the evaluation code used to create the Table 1 in our paper, and all the visualization code. We use latex to create the plot, if you don't have latex in your local machine, you can set `"text.usetex": False` in `update_plot_style()` function under `sbi_demo_utils.py`.
