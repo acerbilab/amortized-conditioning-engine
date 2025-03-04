@@ -2,7 +2,7 @@ num_data : 3000 # n functions sampled is: this times gen_batch_size
 gen_batch_size: 1024 #batch size during paralel generation
 num_vcpu : 31
 num_processes : ${dataset.num_vcpu}
-data_dir : "./offline_data/bo5prior/"
+data_dir : "./offline_data/bo6prior/"
 mp_method: "spawn"
 _target_: src.dataset.ctx_tar_sampler_prior.ContextTargetSamplerWithPrior
 name : "bo_6d_prior"
