@@ -70,7 +70,7 @@ class MixtureGaussian(nn.Module):
         loss_latent_weight: float = 1.0,
         loss_data_weight: float = 1.0,
         discrete_index: Optional[List[int]] = None,
-        bias_init: bool = False,
+        bias_init: bool = True,
     ) -> None:
         
         super().__init__()
@@ -130,17 +130,17 @@ class MixtureGaussian(nn.Module):
 
         # Adding bias terms
         mean, std, weights = self.add_bias(raw_mean, raw_std, raw_weights)
-        
+
         # Getting dimensions
         B, T, C = mean.shape
-        
+
         # Reshape parameters for each dimension
         # Instead of assuming 3 dimensions (RGB), make it work for any dim_y
         mean_reshaped = mean.reshape(B, T, self.num_components, self.dim_y)
         std_reshaped = std.reshape(B, T, self.num_components, self.dim_y)
         weights_reshaped = weights.reshape(B, T, self.num_components, self.dim_y)
         weights_reshaped = F.softmax(weights_reshaped, dim=2)  # Softmax over components dimension
-        
+
         # Compute log-likelihood for each dimension
         tar_ll_dims = []
         for dim in range(self.dim_y):
@@ -151,7 +151,7 @@ class MixtureGaussian(nn.Module):
                 weights_reshaped[:,:,:,dim]
             )
             tar_ll_dims.append(dim_ll)
-        
+
         # Average log-likelihood across all dimensions
         tar_ll = sum(tar_ll_dims) / self.dim_y
         log_probs = tar_ll
@@ -190,7 +190,7 @@ class MixtureGaussian(nn.Module):
             samples, median, q1, q3 = self.predict_out(mean_reshaped, std_reshaped, weights_reshaped, batch, num_samples)
             outs.samples = samples
             # [BxT, num_samples] -> [B, T, 1]
-            outs.mean = samples.mean(dim=2, keepdim=False)  # sample mean
+            outs.mean = samples.mean(dim=2, keepdim=True)  # sample mean
             outs.median = median
             outs.q1 = q1
             outs.q3 = q3
@@ -243,18 +243,18 @@ class MixtureGaussian(nn.Module):
         log_probs = components.log_prob(value)
         weighted_log_probs = log_probs + torch.log(weights)
         return torch.logsumexp(weighted_log_probs, dim=-1)
-    
+
     def predict_out(self, mean: torch.Tensor, std: torch.Tensor, weights: torch.Tensor, batch: Any, num_samples: int = 1000) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Generate predictions for each dimension of the output.
-        
+
         Parameters:
         - mean: Shape [B, T, num_components, dim_y]
         - std: Shape [B, T, num_components, dim_y]
         - weights: Shape [B, T, num_components, dim_y]
         - batch: Batch data
         - num_samples: Number of samples to generate
-        
+
         Returns:
 
         - samples: Predicted samples with shape [B, T, num_samples] if dim_y=1 or [B, T, num_samples, dim_y] otherwise
@@ -265,7 +265,7 @@ class MixtureGaussian(nn.Module):
         """
         # Initialize tensor to store samples for each dimension
         all_samples = []
-        
+
         # Generate samples for each dimension
         for dim in range(self.dim_y):
             samples_flattened = sample(
@@ -274,17 +274,17 @@ class MixtureGaussian(nn.Module):
                 weights[:,:,:,dim].view(-1, self.num_components),
                 num_sample=num_samples,
             )
-            
+
             # Reshape the samples
             samples_dim = samples_flattened.view(
                 batch.yt.shape[0], batch.yt.shape[1], num_samples
             )  # [BxT, num_samples] -> [B, T, num_samples]
-            
+
             all_samples.append(samples_dim.unsqueeze(-1))
-        
+
         # Concatenate samples from all dimensions
         samples = torch.cat(all_samples, dim=-1)  # [B, T, num_samples, dim_y]
-        
+
         # Calculate quantiles
         q1 = torch.quantile(samples, 0.25, dim=2)
         median = torch.quantile(samples, 0.50, dim=2)
@@ -293,20 +293,20 @@ class MixtureGaussian(nn.Module):
         # If dim_y is 1, remove the last dimension to maintain backward compatibility
         if self.dim_y == 1:
             samples = samples.squeeze(-1)  # [B, T, num_samples]
-        
+
 
         return samples, median, q1, q3
-    
+
     @staticmethod
     def _map_raw_output(outputs: List[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         concatenated = torch.stack(outputs).movedim(0, -1).flatten(-2, -1) # [B, T, dim_y * 3 * components]
         raw_mean, raw_std, raw_weights = torch.chunk(concatenated, 3, dim=-1) # 3 x [B, T, components]
         return raw_mean, raw_std, raw_weights
-    
+
     @staticmethod
     def _discrete(batch: Any, output_d: torch.Tensor, discrete_mask: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """  
-        Applies a discrete mask to the model's output tensors and modifies their dimensions to prepare 
+        """
+        Applies a discrete mask to the model's output tensors and modifies their dimensions to prepare
         for cross-entropy loss computation.
         """
         filtered_output_d = output_d * discrete_mask.unsqueeze(-1).expand(
@@ -324,7 +324,7 @@ class MixtureGaussian(nn.Module):
         # Use a different approach if dim_y is variable
         last_dim_idx = -1
         return output_permuted, discrete_labels[:,:,last_dim_idx], filtered_output_d
-    
+
     def build_mask(self, batch: AttrDict) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Generates binary masks for separating target data into discrete and continuous components.
