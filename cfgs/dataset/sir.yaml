@@ -1,4 +1,4 @@
-_target_: src.dataset.sampler_sbi.Sampler
+_target_: src.dataset.sampler_twoway.Sampler
 name : "sir"
 num_ctx: 'random'
 min_num_points: 5

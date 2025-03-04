@@ -1,9 +1,9 @@
 defaults:
   - _self_
   - encoder: tnpd
-  - embedder: embedder_marker_prior_sbi  # embedder_marker_prior_sbi for prior injection, or embedder_marker_skipcon for no prior injection
+  - embedder: embedder_marker_skipcon  # embedder_marker_prior_sbi for prior injection, or embedder_marker_skipcon for no prior injection
   - target_head: mixture_head
-  - dataset: sir_prior  # sir, sir_prior, oup, oup_prior, turin, turin_prior
+  - dataset: oup  # sir, sir_prior, oup, oup_prior, turin, turin_prior
 
 seed: 10
 batch_size: 32
