@@ -196,14 +196,14 @@ The offline data will be saved in `data/`. Once the offline data is generated, w
 Training can be performed using the following commands:
 ```bash
 # Non-prior case
-python -m train_sbi.py dataset=oup embedder=embedder_marker_skipcon
-python -m train_sbi.py dataset=sir embedder=embedder_marker_skipcon
-python -m train_sbi.py dataset=turin embedder=embedder_marker_skipcon
+python train_sbi.py dataset=oup embedder=embedder_marker_skipcon
+python train_sbi.py dataset=sir embedder=embedder_marker_skipcon
+python train_sbi.py dataset=turin embedder=embedder_marker_skipcon
 
 # prior-injection case
-python -m train_sbi.py dataset=oup_prior embedder=embedder_marker_prior_sbi
-python -m train_sbi.py dataset=sir_prior embedder=embedder_marker_prior_sbi
-python -m train_sbi.py dataset=turin_prior embedder=embedder_marker_prior_sbi
+python train_sbi.py dataset=oup_prior embedder=embedder_marker_prior_sbi
+python train_sbi.py dataset=sir_prior embedder=embedder_marker_prior_sbi
+python train_sbi.py dataset=turin_prior embedder=embedder_marker_prior_sbi
 ```
 
 ### Evaluating SBI tasks
