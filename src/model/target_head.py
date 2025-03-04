@@ -154,6 +154,7 @@ class MixtureGaussian(nn.Module):
         
         # Average log-likelihood across all dimensions
         tar_ll = sum(tar_ll_dims) / self.dim_y
+        log_probs = tar_ll
 
         if self.discrete_index:
             output_d = self.class_head(z_target) # [B, T, num_classes]
