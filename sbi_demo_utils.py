@@ -47,7 +47,7 @@ def update_plot_style():
             "figure.facecolor": "1.0",
             "figure.edgecolor": "0.5",
             "hatch.linewidth": 0.1,
-            "text.usetex": True,
+            "text.usetex": False,
         }
     )
 
