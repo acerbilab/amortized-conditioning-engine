@@ -186,9 +186,9 @@ python bo_plot.py result_path=results/bo_run_weakprior/ plot_path=results/bo_plo
 Before training the model, we first need to generate offline datasets using the following command:
 
 ```bash
-python src/dataset/sbi/turin.py
-python src/dataset/sbi/oup.py
-python src/dataset/sbi/sir.py
+python -m src.dataset.sbi.oup 
+python -m src.dataset.sbi.sir
+python -m src.dataset.sbi.turin
 ```
 This will generate offline datasets for both the prior and non-prior cases. In the non-prior case, the prior information is omitted. 
 The offline data will be saved in `data/`. Once the offline data is generated, we can proceed with training the models.
