@@ -572,7 +572,6 @@ class Sampler(object):
 ctxtar_sampler_dict = {
     # "predict_latents_fixed": uniform_sampler_predict_latents_fixed, # TODO
     # "predict_y_fixed": uniform_sampler_predict_y_fixed, # TODO
-    "bernuniformsampler": bern_unif_sampler,
     "onesidesampler": uniform_sampler_one_side,
     "gaussian_eval": sample_for_gaussian,
 }
