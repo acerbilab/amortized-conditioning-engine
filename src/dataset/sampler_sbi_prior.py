@@ -89,22 +89,6 @@ def uniform_sampler_one_side(
     return batch
 
 
-def bern_unif_sampler(
-    problem,
-    batch_size,
-    num_ctx,
-    num_latent,
-    min_ctx_points,
-    max_ctx_points,
-    n_total_points,
-    num_bins,
-    x_range,
-    device,
-    p=0.5,
-):
-    raise NotImplementedError
-
-
 def sample_for_gaussian(
     problem=None,
     batch_size=16,
@@ -118,7 +102,6 @@ def sample_for_gaussian(
     device="cpu",
     mode="default",
 ):
-    """Will clean later"""
 
     if num_ctx == "random":
         num_ctx = torch.randint(
