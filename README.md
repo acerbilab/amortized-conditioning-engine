@@ -12,9 +12,7 @@ pip install -e .
 ```
 
 ## Demos
-We provide three demo notebooks for a quick tour with examples of our method, the Amortized Conditioning Engine (ACE).
-
-We provide three demo notebooks (with their trained models) showcasing 
+We provide three demo notebooks for a quick tour with examples of our method, the Amortized Conditioning Engine (ACE):
 
 - [`1.MNIST_demo.ipynb`](1.MNIST_demo.ipynb): Image completion demo with MNIST.
 - [`2.BO_demo.ipynb`](2.BO_demo.ipynb): Bayesian optimization demo.
