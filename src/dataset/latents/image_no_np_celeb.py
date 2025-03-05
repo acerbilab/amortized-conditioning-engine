@@ -10,7 +10,7 @@ from pathlib import Path
 
 class Image(object):
     
-    def __init__(self, rootdir="data", subset="train", load_data=True, celeba=True, batch_size:int=6,num_workers:int=32):
+    def __init__(self, rootdir="data", subset="train", load_data=True, celeba=True, batch_size:int=6,num_workers:int=4):
 
         if celeba:
             transforms_list = transforms.Compose([

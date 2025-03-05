@@ -1,8 +1,9 @@
-_target_: src.dataset.sampler_twoway.Sampler
+_target_: src.dataset.sampler_twoway_celeb.Sampler
 name : "celebA"
 num_ctx: 'random'
 dim_input: 3 # 1 marker + 2 actual input dim
 dim_output: 3
+bias_init: false
 num_latent: 40 # lengthscale, logstd, kernel
 max_ctx_points: 1000
 min_ctx_points: 2
