@@ -52,6 +52,12 @@ Training MNIST:
 python train.py -m dataset=image_sampler
 ```
 
+Training CelebA:
+```bash
+python -m train.py dataset=image_sampler_celeb embedder=embedder_marker_skipcon_celeb
+```
+CelebA dataset must be downloaded and stored in data/celeba.
+
 ## Bayesian Optimization
 
 ### Training BO
