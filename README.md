@@ -1,6 +1,6 @@
 # Amortized Probabilistic Conditioning for Optimization, Simulation and Inference
 
-This repository will provide the implementation and code used in the AISTATS 2025 article *Amortized Probabilistic Conditioning for Optimization, Simulation and Inference* (Chang et al., 2025).
+This repository provide the implementation and code used in the AISTATS 2025 article *Amortized Probabilistic Conditioning for Optimization, Simulation and Inference* (Chang et al., 2025).
 The full paper can be found on arXiv at: [https://arxiv.org/abs/2410.15320](https://arxiv.org/abs/2410.15320).
 
 ## Installation with Anaconda
@@ -12,15 +12,15 @@ pip install -e .
 ```
 
 ## Demos
-At the moment, we release three demo notebooks with examples of our method, the Amortized Conditioning Engine (ACE).
+We provide three demo notebooks for a quick tour with examples of our method, the Amortized Conditioning Engine (ACE).
+
+We provide three demo notebooks (with their trained models) showcasing 
 
 - [`1.MNIST_demo.ipynb`](1.MNIST_demo.ipynb): Image completion demo with MNIST.
 - [`2.BO_demo.ipynb`](2.BO_demo.ipynb): Bayesian optimization demo.
 - [`3.SBI_demo.ipynb`](3.SBI_demo.ipynb): Simulation-based inference demo.
 
 Each notebook demonstrates a specific application of ACE. Simply open the notebooks in Jupyter or in GitHub to visualize the demos.
-
-Full code for this project will be made available later.
 
 ## Citation
 If you find this work valuable for your research, please consider citing our paper:
@@ -108,7 +108,7 @@ After training the models, the next step is to run the BO experiments on the ben
 ```bash
 sh run_bo.sh 1d_ackley 10 results/bo_run/  
 ```
-This runs the Ackley function with **10 repetitions** and saves the results in the specified folder.
+This runs the Ackley function with 10 repetitions and saves the results in the specified folder.
 
 3. Once the experiment is complete, plot the results using:  
 ```bash
@@ -118,7 +118,8 @@ python bo_plot.py result_path=results/bo_run/ plot_path=results/bo_plot/
 **Reproducing the Experiments**
 
 To fully reproduce the experiments, first ensure that the trained models are saved in the appropriate location before running the scripts. 
-In the default settings, the trained models are saved in `models_ckpt/` folder, also see individual `.yml` files in tge `cfgs/benchmark` folder to see the full path of the models. 
+In the default settings, the trained models are saved in `models_ckpt/` folder, also see individual `.yml` files in tge `cfgs/benchmark` folder to see the full path of the models.
+Trained models for BO are available to be downloaded trough this [link](https://helsinkifi-my.sharepoint.com/:u:/g/personal/satriona_ad_helsinki_fi/EUR15xNV3uBCtgVy8-5lCOUBEHURoztdvDtECeUgPyYFJw?e=azU9KK).  
 
 Full script to reproduce the experiments is as folows:
 
