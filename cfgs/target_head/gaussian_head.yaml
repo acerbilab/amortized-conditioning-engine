@@ -1,5 +1,5 @@
 _target_: src.model.target_head.GaussianHead
 name: single_gaussian
-dim_y: 1
+dim_y: ${dataset.dim_output}
 d_model: ${encoder.d_model}
 dim_feedforward: 128

@@ -1,6 +1,6 @@
 _target_: src.model.target_head.MixtureGaussian
 name: mixture_gaussian
-dim_y: 1
+dim_y: ${dataset.dim_output}
 d_model: ${encoder.d_model}
 dim_feedforward: 128
 num_components: 20
@@ -10,3 +10,4 @@ std_min: 0.001
 loss_latent_weight: ${dataset.loss_latent_weight}
 discrete_index: ${dataset.discrete_index}
 loss_data_weight: ${dataset.loss_data_weight}
+bias_init: ${dataset.bias_init} 
