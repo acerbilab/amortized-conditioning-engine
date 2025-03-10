@@ -156,10 +156,10 @@ cython_debug/
 wandb/
 outputs/
 
-results/
+
 sbi-logs/
 figures/
-data/
+
 .idea/
 
 
