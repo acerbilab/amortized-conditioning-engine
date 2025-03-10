@@ -1,0 +1,8 @@
+- encoder.d_model=64
+- embedder.dim_hid=64
+- batch_size=32
+- num_steps=50000
+- wandb.use_wandb=True
+- embedder=embedder_marker_skipcon_pi_bin
+- seed=2
+- dataset=gaussian_pi
