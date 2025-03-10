@@ -4,6 +4,7 @@ import os
 import torch
 from src.model.base import BaseTransformer
 from sbi.inference.snpe.snpe_c import SNPE_C
+from sbi.inference.snre.snre_c import SNRE_C
 import numpy as np
 from scipy import stats
 
@@ -90,6 +91,17 @@ def train_npe(prior, theta_npe, x_npe):
     return posterior
 
 
+def train_nre(prior, theta_npe, x_npe):
+    """
+        Trains NRE using the provided prior and simulations,
+        then builds and returns the posterior distribution.
+        """
+    inference = SNRE_C(prior=prior)
+    density_estimator = inference.append_simulations(theta_npe, x_npe).train()
+    posterior = inference.build_posterior(density_estimator)
+    return posterior
+
+
 def RMSE_old(gt, samples):
     """
     Computes the Root Mean Squared Error (RMSE) between the ground truth and a set of samples.
@@ -126,6 +138,36 @@ def RMSE(gt, samples):
     avg_rmse = torch.mean(per_point_rmse)  # Scalar
 
     return avg_rmse
+
+
+def MMD_unweighted(x, y, lengthscale):
+    """ Approximates the squared MMD between samples x_i ~ P and y_i ~ Q
+    """
+
+    m = x.shape[0]
+    n = y.shape[0]
+
+    z = torch.cat((x, y), dim=0)
+
+    K = kernel_matrix(z, z, lengthscale)
+
+    kxx = K[0:m, 0:m]
+    kyy = K[m:(m + n), m:(m + n)]
+    kxy = K[0:m, m:(m + n)]
+
+    return (1 / m ** 2) * torch.sum(kxx) - (2 / (m * n)) * torch.sum(kxy) + (1 / n ** 2) * torch.sum(kyy)
+
+def median_heuristic(y):
+    a = torch.cdist(y, y)**2
+    return torch.sqrt(torch.median(a / 2))
+
+
+def kernel_matrix(x, y, l):
+    d = torch.cdist(x, y)**2
+
+    kernel = torch.exp(-(1 / (2 * l ** 2)) * d)
+
+    return kernel
 
 
 def get_coverage_probs(z, u):
