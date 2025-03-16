@@ -1,0 +1,11 @@
+- optimizer.lr=5e-4
+- encoder.d_model=64
+- encoder.n_head=4
+- embedder.dim_hid=64
+- batch_size=32
+- num_steps=50000
+- wandb.use_wandb=True
+- dataset=turin
+- embedder=embedder_marker_skipcon
+- target_head=gaussian_head
+- seed=1

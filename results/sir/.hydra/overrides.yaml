@@ -1,0 +1,10 @@
+- optimizer.lr=5e-4
+- encoder.d_model=64
+- encoder.n_head=4
+- embedder.dim_hid=64
+- batch_size=32
+- num_steps=50000
+- wandb.use_wandb=True
+- dataset=sir
+- embedder=embedder_marker_skipcon
+- seed=1

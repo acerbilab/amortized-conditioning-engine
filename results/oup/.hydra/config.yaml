@@ -1,0 +1,79 @@
+seed: 1
+batch_size: 32
+eval_batch_size: 100
+num_steps: 50000
+print_freq: 100
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.0005
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: ${num_steps}
+checkpoint: true
+ckpt_save_freq: 500
+wandb:
+  group: ${dataset.name}
+  project: amortize-everything
+  use_wandb: true
+  run_name: FINAL-${dataset.name}-seed=${seed}-${now:%Y-%m-%d_%H-%M-%S}
+  tags:
+  - dataset=${dataset.name}
+  - seed=${seed}
+encoder:
+  _target_: src.model.encoder.TNPDEncoder
+  name: tnpd
+  d_model: 64
+  dim_feedforward: 128
+  n_head: 4
+  dropout: 0.0
+  num_layers: 6
+embedder:
+  _target_: src.model.embedder.EmbedderMarker
+  name: mark_emb_skip
+  dim_hid: 64
+  dim_out: ${encoder.d_model}
+  emb_depth: 4
+  pos_emb_init: true
+  use_skipcon_mlp: true
+  discrete_index: ${dataset.discrete_index}
+  num_latent: ${dataset.num_latent}
+  dim_xc: ${dataset.dim_input}
+  dim_yc: 1
+target_head:
+  _target_: src.model.target_head.MixtureGaussian
+  name: mixture_gaussian
+  dim_y: 1
+  d_model: ${encoder.d_model}
+  dim_feedforward: 128
+  num_components: 20
+  single_head: false
+  trange: ${dataset.x_range}
+  std_min: 0.001
+  loss_latent_weight: ${dataset.loss_latent_weight}
+  discrete_index: ${dataset.discrete_index}
+  loss_data_weight: ${dataset.loss_data_weight}
+dataset:
+  _target_: src.dataset.sampler_twoway.Sampler
+  name: oup
+  num_ctx: random
+  min_ctx_points: 10
+  max_ctx_points: 25
+  num_latent: 2
+  dim_input: 2
+  dim_tar: 1
+  n_total_points: 25
+  x_range:
+  - -2
+  - 12
+  device: cpu
+  ctx_tar_sampler: bernuniformsampler
+  discrete_index: null
+  loss_latent_weight: 1
+  loss_data_weight: 1
+  problem:
+    _target_: src.dataset.sbi.oup.OUP
+    x_file: data/x_oup_10000.pt
+    theta_file: data/theta_oup_10000.pt
+    batch_size: ${batch_size}
+    shuffle: true
+    order: random
