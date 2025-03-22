@@ -8,6 +8,8 @@ _target_: src.dataset.sampler_twoway.Sampler
 name : "bo_5d"
 num_ctx: 'random'
 dim_input: 6 # 1 + actual input dim
+dim_output: 1
+bias_init: false
 num_latent: 6 # x1_star, x2_star, ..., x5_star, y_star 
 max_ctx_points: 100
 min_ctx_points: 10
