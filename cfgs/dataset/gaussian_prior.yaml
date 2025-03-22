@@ -1,6 +1,8 @@
 _target_: src.dataset.sampler_sbi_prior.Sampler
 name : "gaussian_pi_bin"
 dim_input: 2
+dim_output: 1
+bias_init: false
 dim_tar: 1
 num_ctx: 'random'
 x_range: [-2, 2]

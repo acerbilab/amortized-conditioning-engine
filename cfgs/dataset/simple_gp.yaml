@@ -2,6 +2,8 @@ _target_: src.dataset.sampler_twoway.Sampler
 name : "lengthscale_gp2d_2way_fast"
 num_ctx: 'random'
 dim_input: 2 # 1 marker + 1 actual input dim
+dim_output: 1
+bias_init: false
 num_latent: 2 # lengthscale_x1,  sigma_f
 max_ctx_points: 50
 min_ctx_points: 3
