@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Amortized Probabilistic Conditioning for Optimization, Simulation and
+      Inference | ACE Project Page
+    </title>
+    <meta
+      name="description"
+      content="Project page for the paper 'Amortized Probabilistic Conditioning for Optimization, Simulation and Inference' (ACE) by Chang, Loka, Huang, Remes, Kaski, Acerbi (AISTATS 2025)"
+    />
+    <meta
+      property="og:title"
+      content="Amortized Probabilistic Conditioning for Optimization, Simulation and Inference"
+    />
+    <meta property="og:locale" content="en_US" />
+    <meta
+      property="og:description"
+      content="This website contains information about the ACE framework, a transformer-based meta-learning model that provides a unified approach for probabilistic conditioning and prediction across various machine learning tasks."
+    />
+    <style>
+      :root {
+        --primary-color: #4a6fa5;
+        --secondary-color: #2c3e50;
+        --accent-color: #e74c3c;
+        --light-bg: #f8f9fa;
+        --dark-bg: #343a40;
+        --text-color: #333;
+        --light-text: #f8f9fa;
+        --border-color: #dee2e6;
+        --code-bg: #f1f1f1;
+        --blockquote-bg: #f2f7ff;
+        --blockquote-border: #b8daff;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont,
+          Arial, sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      a {
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin: 1.5rem 0 1rem;
+        line-height: 1.2;
+        color: var(--secondary-color);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+        padding-bottom: 0.3rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      h3 {
+        font-size: 1.5rem;
+      }
+
+      p,
+      ul,
+      ol {
+        margin-bottom: 1.2rem;
+      }
+
+      ul,
+      ol {
+        padding-left: 1.5rem;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 1.5rem auto;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .caption {
+        text-align: center;
+        margin-top: -0.8rem;
+        margin-bottom: 2rem;
+        font-style: italic;
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+          monospace;
+        background: var(--code-bg);
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-size: 0.9em;
+      }
+
+      pre {
+        background: var(--code-bg);
+        padding: 1rem;
+        overflow-x: auto;
+        border-radius: 5px;
+        margin-bottom: 1.5rem;
+      }
+
+      pre code {
+        background: none;
+        padding: 0;
+      }
+
+      blockquote {
+        background-color: var(--blockquote-bg);
+        border-left: 4px solid var(--blockquote-border);
+        padding: 1rem;
+        margin: 1.5rem 0;
+        border-radius: 0 5px 5px 0;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .authors {
+        margin: 1rem 0;
+        font-size: 1.1rem;
+      }
+
+      .affiliations {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        color: #666;
+      }
+
+      .conference {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--accent-color);
+      }
+
+      .resources {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin: 1.5rem 0;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 0.6rem 1.2rem;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background-color 0.2s;
+      }
+
+      .btn:hover {
+        background-color: var(--secondary-color);
+        text-decoration: none;
+      }
+
+      .tldr {
+        background-color: var(--light-bg);
+        padding: 1.5rem;
+        border-radius: 5px;
+        margin: 1.5rem 0;
+        border: 1px solid var(--border-color);
+      }
+
+      .tldr h3 {
+        margin-top: 0;
+        color: var(--primary-color);
+      }
+
+      .citation {
+        background-color: var(--light-bg);
+        padding: 1.5rem;
+        border-radius: 5px;
+        margin: 1.5rem 0;
+        border: 1px solid var(--border-color);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+          monospace;
+        white-space: pre-wrap;
+        font-size: 0.85rem;
+        position: relative; /* For positioning the copy button */
+        overflow-x: auto; /* For horizontal scrolling if needed */
+      }
+
+      /* Style for the copy button */
+      .copy-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background-color: var(--border-color);
+        color: var(--text-color);
+        border: none;
+        border-radius: 3px;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+      }
+
+      .copy-btn:hover {
+        opacity: 1;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+      }
+
+      table th,
+      table td {
+        padding: 0.75rem;
+        text-align: left;
+        border: 1px solid var(--border-color);
+      }
+
+      table th {
+        background-color: var(--light-bg);
+        font-weight: 600;
+      }
+
+      table tr:nth-child(even) {
+        background-color: var(--light-bg);
+      }
+
+      .two-column {
+        display: flex;
+        gap: 2rem;
+        margin: 1.5rem 0;
+      }
+
+      .two-column > div {
+        flex: 1;
+      }
+
+      .highlight {
+        background-color: var(--blockquote-bg);
+        padding: 1rem;
+        border-radius: 5px;
+        margin: 1.5rem 0;
+      }
+
+      .highlight h3 {
+        color: var(--primary-color);
+        margin-top: 0;
+      }
+
+      @media (max-width: 768px) {
+        .two-column {
+          flex-direction: column;
+        }
+      }
+
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+        text-align: center;
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      .responsive-img {
+        width: 100%;
+        display: block;
+        margin: auto;
+        margin-bottom: 1em;
+      }
+
+      .responsive-img-large {
+        width: 100%;
+        display: block;
+        margin: auto;
+        margin-bottom: 1em;
+      }
+
+      /* On screens wider than 768px (typical tablet/laptop breakpoint) */
+      @media (min-width: 768px) {
+        .responsive-img {
+          width: 50%;
+        }
+        .responsive-img-large {
+          width: 90%;
+        }
+      }
+    </style>
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+          displayMath: [
+            ["$$", "$$"],
+            ["\\[", "\\]"],
+          ],
+          processEscapes: true,
+          processEnvironments: true,
+        },
+        options: {
+          ignoreHtmlClass: "tex2jax_ignore",
+          processHtmlClass: "tex2jax_process",
+        },
+      };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+  </head>
+  <body>
+    <div class="header">
+      <h1>
+        Amortized Probabilistic Conditioning for Optimization, Simulation and
+        Inference
+      </h1>
+      <div class="authors">
+        Paul E. Chang<sup>*1</sup>, Nasrulloh Loka<sup>*1</sup>, Daolang
+        Huang<sup>*2</sup>, Ulpu Remes<sup>3</sup>, Samuel Kaski<sup>2,4</sup>,
+        Luigi Acerbi<sup>1</sup>
+      </div>
+      <div class="affiliations">
+        <sup>1</sup>Department of Computer Science, University of Helsinki,
+        Helsinki, Finland<br />
+        <sup>2</sup>Department of Computer Science, Aalto University, Espoo,
+        Finland<br />
+        <sup>3</sup>Department of Mathematics and Statistics, University of
+        Helsinki, Helsinki, Finland<br />
+        <sup>4</sup>Department of Computer Science, University of Manchester,
+        Manchester, United Kingdom<br />
+        <sup>*</sup>Equal contribution
+      </div>
+      <div class="conference">
+        Accepted to the 28th International Conference on Artificial Intelligence
+        and Statistics (AISTATS 2025)
+      </div>
+      <div class="resources">
+        <a
+          href="https://github.com/acerbilab/amortized-conditioning-engine/"
+          class="btn"
+          >Code</a
+        >
+        <a href="https://arxiv.org/abs/2410.15320" class="btn">Paper</a>
+      </div>
+    </div>
+
+    <div class="tldr">
+      <h3>TL;DR</h3>
+      <p>
+        We introduce the <strong>Amortized Conditioning Engine (ACE)</strong>, a
+        transformer-based meta-learning model that enables flexible
+        probabilistic conditioning and prediction for machine learning tasks.
+        ACE can condition on both observed data and latent variables, include
+        priors at runtime, and output predictive distributions for both data and
+        latents. This general framework unifies and simplifies diverse ML tasks
+        like image completion, Bayesian optimization, and simulation-based
+        inference.
+      </p>
+    </div>
+
+    <div class="citation">
+      @article{chang2025amortized, 
+	title={Amortized Probabilistic Conditioning for Optimization, Simulation and Inference}, 
+	author={Chang, Paul E and Loka, Nasrulloh and Huang, Daolang and Remes, Ulpu and Kaski, Samuel and Acerbi, Luigi},
+	journal={28th Int. Conf. on Artificial Intelligence & Statistics (AISTATS 2025)},
+	year={2025}
+      }
+    </div>
+
+    <h2>Introduction</h2>
+    <p>
+      Amortization, or pre-training, is a crucial technique for improving
+      computational efficiency and generalization across many machine learning
+      tasks. This paper capitalizes on the observation that many machine
+      learning problems reduce to predicting data and task-relevant latent
+      variables after conditioning on other data and latents. Moreover, in many
+      scenarios, the user has exact or probabilistic information (priors) about
+      task-relevant variables that they would like to leverage, but
+      incorporating such prior knowledge is challenging and often requires
+      dedicated, expensive solutions.
+    </p>
+
+    <p>
+      Consider Bayesian optimization (BO), where the goal is to find the
+      location $\mathbf{x}_{\text{opt}}$ and value $y_{\text{opt}}$ of the
+      global minimum of a function. These are latent variables, distinct from
+      the observed data $\mathcal{D}_{N}$ consisting of function values at
+      queried locations. Following information-theoretical principles, we should
+      query points that would reduce uncertainty about the latent optimum, but
+      predictive distributions over these latents are intractable, leading to
+      complex approximation techniques.
+    </p>
+
+    <img
+      src="images/figure1.png"
+      alt="Probabilistic conditioning and prediction examples"
+      class="responsive-img"
+    />
+    <div class="caption">
+      Figure 1: Probabilistic conditioning and prediction. Many tasks reduce to
+      probabilistic conditioning on data and key latent variables (left) and
+      then predicting data and latents (right). (a) Image completion and
+      classification. (b) Bayesian optimization. (c) Simulator-based inference.
+    </div>
+
+    <p>
+      We address these challenges by introducing the
+      <strong>Amortized Conditioning Engine (ACE)</strong>, a general
+      amortization framework that extends transformer-based meta-learning
+      architectures with explicit and flexible probabilistic modeling of
+      task-relevant latent variables. Through the lens of amortized
+      probabilistic conditioning and prediction, we provide a unifying
+      methodological bridge across multiple fields.
+    </p>
+
+    <h2>Probabilistic Conditioning and Prediction</h2>
+
+    <p>
+      In the framework of prediction maps and Conditional Neural Processes
+      (CNPs), a prediction map $\pi$ is a function that takes a context set of
+      input/output pairs $\mathcal{D}_{N}$ and target inputs
+      $\mathbf{x}_{1:M}^*$ to predict a distribution over the corresponding
+      target outputs:
+    </p>
+
+    $$\pi(y_{1:M}^* | \mathbf{x}_{1:M}^* ; \mathcal{D}_{N}) = p(y_{1:M}^* |
+    \mathbf{r}(\mathbf{x}_{1:M}^*, \mathcal{D}_{N}))$$
+
+    <p>
+      where $\mathbf{r}$ is a representation vector of the context and target
+      sets. Diagonal prediction maps model each target independently:
+    </p>
+
+    $$\pi(y_{1:M}^* | \mathbf{x}_{1:M}^* ; \mathcal{D}_{N}) = \prod_{m=1}^{M}
+    p(y_{m}^* | \mathbf{r}(\mathbf{x}_{m}^*,
+    \mathbf{r}_{\mathcal{D}}(\mathcal{D}_{N})))$$
+
+    <p>
+      While diagonal maps directly model conditional 1D marginals, they can
+      represent any conditional joint distribution autoregressively.
+    </p>
+
+    <h2>The Amortized Conditioning Engine (ACE)</h2>
+
+    <h3>Key Innovation: Encoding Latents and Priors</h3>
+    <p>
+      ACE extends the prediction map formalism to explicitly accommodate latent
+      variables. We redefine inputs as $\boldsymbol{\xi} \in \mathcal{X} \cup
+      \{\ell_1, \ldots, \ell_L\}$ where $\mathcal{X}$ is the data input space
+      and $\ell_l$ is a marker for the $l$-th latent. Values are redefined as $z
+      \in \mathcal{Z}$ where $\mathcal{Z}$ can be continuous or discrete. This
+      allows ACE to predict any combination of target variables conditioning on
+      any other combination of context data and latents:
+    </p>
+
+    $$\pi(z_{1:M}^* | \boldsymbol{\xi}_{1:M}^* ; \mathfrak{D}_{N}) =
+    \prod_{m=1}^{M} p(z_{m}^* | \mathbf{r}(\boldsymbol{\xi}_{m}^*,
+    \mathbf{r}_{\mathcal{D}}(\mathfrak{D}_{N})))$$
+
+    <blockquote>
+      <p>
+        <strong>Key Innovation:</strong> ACE also allows the user to express
+        probabilistic information over latent variables as prior probability
+        distributions at runtime. To flexibly approximate a broad class of
+        distributions, we convert each one-dimensional probability density
+        function to a normalized histogram of probabilities over a predefined
+        grid.
+      </p>
+    </blockquote>
+
+    <img
+      src="images/figure2.png"
+      alt="Prior amortization example"
+      class="responsive-img"
+    />
+    <div class="caption">
+      Figure 2: Prior amortization. Two example posterior distributions for the
+      mean $\mu$ and standard deviation $\sigma$ of a 1D Gaussian. (a) Prior
+      distribution over $\boldsymbol{\theta}=(\mu, \sigma)$ set at runtime. (b)
+      Likelihood for the observed data. (c) Ground-truth Bayesian posterior. (d)
+      ACE's predicted posterior approximates well the true posterior.
+    </div>
+
+    <h3>Architecture</h3>
+    <p>ACE consists of three main components:</p>
+
+    <ol>
+      <li>
+        <strong>Embedding Layer:</strong> Maps context and target data points
+        and latents to the same embedding space. For context data points
+        $(\mathbf{x}_n, y_n)$, we use $f_{\mathbf{x}}(\mathbf{x}_n) +
+        f_{\text{val}}(y_n) + \mathbf{e}_{\text{data}}$, while latent variables
+        $\theta_l$ are embedded as $f_{\text{val}}(\theta_l) + \mathbf{e}_l$.
+        For latents with a prior $\mathbf{p}_l$, we use
+        $f_{\text{prob}}(\mathbf{p}_l) + \mathbf{e}_l$.
+      </li>
+
+      <li>
+        <strong>Transformer Layers:</strong> ACE employs multi-head
+        self-attention for context points and cross-attention from target points
+        to context, implemented efficiently to reduce computational complexity.
+      </li>
+
+      <li>
+        <strong>Output Heads:</strong> For continuous-valued variables, ACE uses
+        a Gaussian mixture output consisting of $K$ components. For
+        discrete-valued variables, it employs a categorical distribution.
+      </li>
+    </ol>
+
+    <div class="highlight">
+      <h3>Training and Prediction</h3>
+      <p>
+        ACE is trained via maximum-likelihood on synthetic data. During
+        training, we generate each problem instance hierarchically by first
+        sampling the latent variables $\boldsymbol{\theta}$, and then data
+        points $(\mathbf{X}, \mathbf{y})$ according to the generative model of
+        the task. Data and latents are randomly split between context and
+        target.
+      </p>
+      <p>
+        ACE minimizes the expected negative log-likelihood of the target set
+        conditioned on the context:
+      </p>
+
+      $$\mathcal{L}(\mathbf{w}) = \mathbb{E}_{\mathbf{p} \sim
+      \mathcal{P}}\left[\mathbb{E}_{\mathcal{D}_{N}, \boldsymbol{\xi}_{1:M},
+      \mathbf{z}_{1:M} \sim \mathbf{p}}\left[-\sum_{m=1}^{M} \log q(z_{m}^* |
+      \mathbf{r}_{\mathbf{w}}(\boldsymbol{\xi}_{m}^*,
+      \mathfrak{D}_{N}))\right]\right]$$
+    </div>
+
+    <h2>Applications and Experimental Results</h2>
+
+    <p>
+      We demonstrate ACE's capabilities across diverse machine learning tasks:
+    </p>
+
+    <h3>1. Image Completion and Classification</h3>
+    <p>
+      ACE treats image completion as a regression task, where given limited
+      pixel values (context), it predicts the complete image. For MNIST and
+      CelebA datasets, ACE outperforms other Transformer Neural Processes, with
+      notable improvement when integrating latent information.
+    </p>
+
+    <img
+      src="images/figure3.png"
+      alt="Image completion results"
+      class="responsive-img"
+    />
+    <div class="caption">
+      <bold>Image completion.</bold> (a) Reference image. (b) Observed pixels
+      (10%). (c-e) Predictions from different models. (f) Performance across
+      varying levels of context.
+    </div>
+
+    <p>
+      ACE also performs well at conditional image generation and image
+      classification, as we can condition and predict latent variables such as
+      CelebA features.
+    </p>
+    <img
+      src="images/figureS9.png"
+      alt="Conditional image generation"
+      class="responsive-img"
+    />
+    <div class="caption">
+      Conditional image generation. Example of ACE conditioning on the value of
+      the BALD feature when the top part of the image is masked.
+    </div>
+
+    <h3>2. Bayesian Optimization (BO)</h3>
+    <p>
+      In Bayesian optimization, ACE explicitly models the global optimum
+      location $\mathbf{x}_{\text{opt}}$ and value $y_{\text{opt}}$ as latent
+      variables. This enables:
+    </p>
+
+    <ul>
+      <li>
+        Direct sampling from the predictive distribution
+        $p(\mathbf{x}_{\text{opt}} | \mathcal{D}_N, y_{\text{opt}} < \tau)$ for
+        Thompson Sampling (ACE-TS)
+      </li>
+      <li>
+        Straightforward implementation of Max-Value Entropy Search (MES)
+        acquisition function
+      </li>
+      <li>
+        Seamless incorporation of prior information about the optimum location
+      </li>
+    </ul>
+
+    <img
+      src="images/figureS14.png"
+      alt="Bayesian Optimization example"
+      class="responsive-img-large"
+    />
+    <div class="caption">
+      Bayesian Optimization example. Example evolution of ACE-TS on a 1D
+      function. The orange pdf on the left of each panel is $p(y_{\text{opt}} |
+      \mathcal{D}_N)$, the red pdf at the bottom of each panel is
+      $p(\mathbf{x}_{\text{opt}} | y_{\text{opt}}, \mathcal{D}_N)$, for a
+      sampled $y_{\text{opt}}$ (orange dashed-dot line). The queried point at
+      each iteration is marked with a red asterisk, while black and blue dots
+      represent the observed points. Note how ACE is able to learn complex
+      conditional predictive distributions for $\mathbf{x}_{\text{opt}}$ and
+      $y_{\text{opt}}$.
+    </div>
+
+    <p>
+      Results show that ACE-MES frequently outperforms ACE-TS and often matches
+      the gold-standard GP-MES. When prior information about the optimum
+      location is available, ACE-TS with prior (ACEP-TS) shows significant
+      improvement over its no-prior variant and competitive performance compared
+      to state-of-the-art methods.
+    </p>
+
+    <img
+      src="images/figure5.png"
+      alt="Bayesian optimization results"
+      class="responsive-img-large"
+    />
+    <div class="caption">
+      Figure 5: Bayesian optimization results. Regret comparison for different
+      methods across benchmark tasks.
+    </div>
+
+    <h3>3. Simulation-Based Inference (SBI)</h3>
+    <p>
+      For simulation-based inference, ACE can predict posterior distributions of
+      model parameters, simulate data, predict missing data, and incorporate
+      priors at runtime. We evaluated ACE on three simulation models:
+    </p>
+
+    <ul>
+      <li>Ornstein-Uhlenbeck Process (OUP)</li>
+      <li>Susceptible-Infectious-Recovered model (SIR)</li>
+      <li>Turin model (a complex radio propagation simulator)</li>
+    </ul>
+
+    <p>
+      ACE shows performance comparable to dedicated SBI methods on posterior
+      estimation. When injecting informative priors (ACEP), performance improves
+      proportionally to the provided information. Notably, while Simformer
+      achieves similar results, ACE is significantly faster at sampling (0.05
+      seconds vs. 130 minutes for 1,000 posterior samples).
+    </p>
+
+    <img
+      src="images/table1.png"
+      alt="Simulator-based inference results table"
+      class="responsive-img-large"
+    />
+    <div class="caption">
+      Comparison metrics for SBI models. ACE shows performance comparable to
+      dedicated methods while offering additional flexibility.
+    </div>
+
+    <h2>Conclusions</h2>
+
+    <blockquote>
+      <ol>
+        <li>
+          ACE provides a unified framework for probabilistic conditioning and
+          prediction across diverse machine learning tasks.
+        </li>
+        <li>
+          The ability to condition on and predict both data and latent variables
+          enables ACE to handle tasks that would otherwise require bespoke
+          solutions.
+        </li>
+        <li>
+          Runtime incorporation of priors over latent variables offers
+          additional flexibility.
+        </li>
+        <li>
+          Experiments show competitive performance compared to task-specific
+          methods across image completion, Bayesian optimization, and
+          simulation-based inference.
+        </li>
+      </ol>
+    </blockquote>
+
+    <p>
+      ACE shows strong promise as a new unified and versatile method for
+      amortized probabilistic conditioning and prediction. While the current
+      implementation has limitations, such as quadratic complexity in context
+      size and scaling challenges with many data points and latents, these
+      provide clear directions for future work.
+    </p>
+
+    <h2>References</h2>
+    <ol>
+      <li>
+        Marta Garnelo, Jonathan Schwarz, Dan Rosenbaum, Fabio Viola, Danilo J
+        Rezende, SM Ali Eslami, and Yee Whye Teh. Neural processes. In ICML
+        Workshop on Theoretical Foundations and Applications of Deep Generative
+        Models, 2018.
+      </li>
+      <li>
+        Tung Nguyen and Aditya Grover. Transformer Neural Processes:
+        Uncertainty-aware meta learning via sequence modeling. In Proceedings of
+        the International Conference on Machine Learning (ICML), pages 123-134.
+        PMLR, 2022.
+      </li>
+      <li>
+        Samuel Müller, Noah Hollmann, Sebastian Pineda Arango, Josif Grabocka,
+        and Frank Hutter. Transformers can do Bayesian inference. In
+        International Conference on Learning Representations, 2022.
+      </li>
+      <li>
+        Wessel P Bruinsma, Stratis Markou, James Requeima, Andrew YK Foong, Tom
+        R Andersson, Anna Vaughan, Anthony Buonomo, J Scott Hosking, and Richard
+        E Turner. Autoregressive conditional neural processes. In International
+        Conference on Learning Representations, 2023.
+      </li>
+      <li>
+        Kyle Cranmer, Johann Brehmer, and Gilles Louppe. The frontier of
+        simulation-based inference. Proceedings of the National Academy of
+        Sciences, 117(48): 30055-30062, 2020.
+      </li>
+      <li>
+        Roman Garnett. Bayesian optimization. Cambridge University Press, 2023.
+      </li>
+      <li>
+        Zi Wang and Stefanie Jegelka. Max-value entropy search for efficient
+        Bayesian optimization. In International Conference on Machine Learning,
+        pages 3627-3635. PMLR, 2017.
+      </li>
+      <li>
+        Manuel Gloeckler, Michael Deistler, Christian Weilbach, Frank Wood, and
+        Jakob H Macke. All-in-one simulation-based inference. In International
+        Conference on Machine Learning. PMLR, 2024.
+      </li>
+    </ol>
+
+    <footer>
+      <p>
+        © 2025 Paul E. Chang, Nasrulloh Loka, Daolang Huang, Ulpu Remes, Samuel
+        Kaski, Luigi Acerbi
+      </p>
+      <p>
+        Code available at:
+        <a href="https://github.com/acerbilab/amortized-conditioning-engine/"
+          >https://github.com/acerbilab/amortized-conditioning-engine/</a
+        >
+      </p>
+    </footer>
+  </body>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Find all citation elements and add copy buttons
+      const citations = document.querySelectorAll(".citation");
+
+      citations.forEach(function (citation, index) {
+        // Create the button
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "copy-btn";
+        copyBtn.textContent = "Copy";
+        copyBtn.setAttribute("aria-label", "Copy to clipboard");
+
+        // Add the button to the citation
+        citation.appendChild(copyBtn);
+
+        // Add click event to copy the content
+        copyBtn.addEventListener("click", function () {
+          // Get the text content
+          const text = citation.textContent.replace("Copy", "").trim();
+
+          // Copy to clipboard
+          navigator.clipboard
+            .writeText(text)
+            .then(function () {
+              // Visual feedback
+              copyBtn.textContent = "Copied!";
+              setTimeout(function () {
+                copyBtn.textContent = "Copy";
+              }, 2000);
+            })
+            .catch(function (err) {
+              console.error("Could not copy text: ", err);
+              copyBtn.textContent = "Failed!";
+              setTimeout(function () {
+                copyBtn.textContent = "Copy";
+              }, 2000);
+            });
+        });
+      });
+    });
+  </script>
+</html>
