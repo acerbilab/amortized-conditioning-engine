@@ -654,6 +654,18 @@
         outline: 2px solid var(--primary-light);
         outline-offset: 2px;
       }
+      
+      /* Handle active state explicitly to ensure it clears properly on mobile */
+      .back-to-top:active {
+        background-color: var(--primary-dark);
+      }
+      
+      /* Ensure no persistent hover effects on touch devices */
+      @media (hover: none) {
+        .back-to-top:hover {
+          background-color: var(--primary-color);
+        }
+      }
 
       /* Architecture figure collapsible styles */
       .architecture-details {
@@ -1480,6 +1492,18 @@
           top: 0,
           behavior: "smooth",
         });
+        
+        // Remove focus to prevent persistent styling on mobile
+        this.blur();
+      });
+      
+      // Add touch event handlers for mobile devices
+      backToTopButton.addEventListener("touchend", function() {
+        // Explicitly remove any active/focus styling after touch
+        setTimeout(() => {
+          this.blur();
+          this.classList.remove("active");
+        }, 300);
       });
 
       // Smooth scrolling for all anchor links
