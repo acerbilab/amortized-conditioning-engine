@@ -423,11 +423,11 @@
         transform: translateY(-2px);
         box-shadow: var(--shadow-sm);
       }
-      
+
       .copy-btn:active {
         transform: translateY(0);
       }
-      
+
       .copy-btn.copied {
         background-color: var(--primary-color);
         color: white;
@@ -642,7 +642,7 @@
         outline: 2px solid var(--primary-light);
         outline-offset: 2px;
       }
-      
+
       /* On screens wider than 768px (typical tablet/laptop breakpoint) */
       @media (min-width: 768px) {
         .responsive-img {
@@ -751,12 +751,12 @@
 
     <!-- prettier-ignore -->
     <div class="citation">
-    @article{chang2025amortized, 
-      title={Amortized Probabilistic Conditioning for Optimization, Simulation and Inference}, 
-      author={Chang, Paul E and Loka, Nasrulloh and Huang, Daolang and Remes, Ulpu and Kaski, Samuel and Acerbi, Luigi},
-      journal={28th Int. Conf. on Artificial Intelligence & Statistics (AISTATS 2025)},
-      year={2025}
-    }
+@article{chang2025amortized,
+  title={Amortized Probabilistic Conditioning for Optimization, Simulation and Inference}, 
+  author={Chang, Paul E and Loka, Nasrulloh and Huang, Daolang and Remes, Ulpu and Kaski, Samuel and Acerbi, Luigi},
+  journal={28th Int. Conf. on Artificial Intelligence & Statistics (AISTATS 2025)},
+  year={2025}
+}
     </div>
 
     <h2>Introduction</h2>
@@ -1145,7 +1145,17 @@
     </footer>
     <!-- Back to top button -->
     <a href="#" id="back-to-top" class="back-to-top" aria-label="Back to top">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <polyline points="18 15 12 9 6 15"></polyline>
       </svg>
     </a>
@@ -1206,8 +1216,8 @@
       const images = document.querySelectorAll("img:not(#lightbox-img)");
 
       // Setup image click listeners
-      images.forEach(function(img) {
-        img.addEventListener("click", function() {
+      images.forEach(function (img) {
+        img.addEventListener("click", function () {
           lightboxImg.src = this.src;
           lightboxImg.alt = this.alt;
           lightbox.classList.add("active");
@@ -1220,14 +1230,14 @@
       lightboxClose.addEventListener("click", closeLightbox);
 
       // Close lightbox when clicking outside the image
-      lightbox.addEventListener("click", function(e) {
+      lightbox.addEventListener("click", function (e) {
         if (e.target === lightbox) {
           closeLightbox();
         }
       });
 
       // Close lightbox when pressing Escape key
-      document.addEventListener("keydown", function(e) {
+      document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && lightbox.classList.contains("active")) {
           closeLightbox();
         }
@@ -1236,7 +1246,7 @@
       function closeLightbox() {
         lightbox.classList.remove("active");
         document.body.style.overflow = ""; // Restore scrolling
-        setTimeout(function() {
+        setTimeout(function () {
           lightboxImg.src = ""; // Clear the source after transition
         }, 300);
         lightbox.setAttribute("aria-hidden", "true");
@@ -1244,46 +1254,48 @@
 
       // Back to top button functionality
       const backToTopButton = document.getElementById("back-to-top");
-      
+
       // Show/hide back to top button based on scroll position
-      window.addEventListener("scroll", function() {
+      window.addEventListener("scroll", function () {
         if (window.pageYOffset > 300) {
           backToTopButton.classList.add("visible");
         } else {
           backToTopButton.classList.remove("visible");
         }
       });
-      
+
       // Smooth scroll to top when clicking the button
-      backToTopButton.addEventListener("click", function(e) {
+      backToTopButton.addEventListener("click", function (e) {
         e.preventDefault();
         window.scrollTo({
           top: 0,
-          behavior: "smooth"
+          behavior: "smooth",
         });
       });
 
       // Smooth scrolling for all anchor links
-      document.querySelectorAll('a[href^="#"]:not(#back-to-top)').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-          const href = this.getAttribute('href');
-          
-          // Only apply smooth scroll for page anchor links
-          if (href !== "#") {
-            e.preventDefault();
-            
-            const targetElement = document.querySelector(href);
-            if (targetElement) {
-              targetElement.scrollIntoView({
-                behavior: 'smooth'
-              });
-              
-              // Update URL hash without jumping
-              history.pushState(null, null, href);
+      document
+        .querySelectorAll('a[href^="#"]:not(#back-to-top)')
+        .forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            const href = this.getAttribute("href");
+
+            // Only apply smooth scroll for page anchor links
+            if (href !== "#") {
+              e.preventDefault();
+
+              const targetElement = document.querySelector(href);
+              if (targetElement) {
+                targetElement.scrollIntoView({
+                  behavior: "smooth",
+                });
+
+                // Update URL hash without jumping
+                history.pushState(null, null, href);
+              }
             }
-          }
+          });
         });
-      });
     });
   </script>
 </html>
