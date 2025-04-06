@@ -1,7 +1,9 @@
 # Amortized Probabilistic Conditioning for Optimization, Simulation and Inference
 
 This repository provide the implementation and code used in the AISTATS 2025 article *Amortized Probabilistic Conditioning for Optimization, Simulation and Inference* (Chang et al., 2025).
-The full paper can be found on arXiv at: [https://arxiv.org/abs/2410.15320](https://arxiv.org/abs/2410.15320).
+
+- See the paper [web page](https://acerbilab.github.io/amortized-conditioning-engine/) for more information.
+- The full paper is available [on arXiv](https://arxiv.org/abs/2410.15320) and as [Markdown files](https://github.com/acerbilab/amortized-conditioning-engine/tree/main/docs/paper).
 
 ## Installation with Anaconda
 To install the required dependencies, run:
