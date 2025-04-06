@@ -866,7 +866,7 @@
         priors at runtime, and output predictive distributions for both data and
         latents. This general framework unifies and simplifies diverse ML tasks
         like image completion, Bayesian optimization, and simulation-based
-        inference.
+        inference, and has the potential to be applied to many others.
       </p>
     </div>
 
@@ -894,14 +894,18 @@
     </p>
 
     <p>
-      Consider Bayesian optimization (BO), where the goal is to find the
-      location $\mathbf{x}_{\text{opt}}$ and value $y_{\text{opt}}$ of the
-      global minimum of a function. These are latent variables, distinct from
-      the observed data $\mathcal{D}_{N}$ consisting of function values at
-      queried locations. Following information-theoretical principles, we should
-      query points that would reduce uncertainty about the latent optimum, but
-      predictive distributions over these latents are intractable, leading to
-      complex approximation techniques.
+      As an example, consider <strong>Bayesian optimization (BO)</strong>, where
+      the goal is to find the location $\mathbf{x}_{\text{opt}}$ and value
+      $y_{\text{opt}}$ of the global minimum of a function. These are latent
+      variables, distinct from the observed data $\mathcal{D}_{N}$ consisting of
+      function values at queried locations. Following information-theoretical
+      principles, we should query points that would reduce uncertainty about the
+      latent optimum. This task would be easier if we had direct access to
+      predictive distribution over the latents of interest,
+      $p(\mathbf{x}_{\text{opt}} | \mathcal{D}_{N})$ and $p(y_{\text{opt}} |
+      \mathcal{D}_{N})$, among others, but predictive distributions over these
+      variables are intractable, leading to many complex techniques and a
+      variety of papers just to approximate these distributions.
     </p>
 
     <img
@@ -922,9 +926,10 @@
       <strong>Amortized Conditioning Engine (ACE)</strong>, a general
       amortization framework that extends transformer-based meta-learning
       architectures with explicit and flexible probabilistic modeling of
-      task-relevant latent variables. Through the lens of amortized
-      probabilistic conditioning and prediction, we provide a unifying
-      methodological bridge across multiple fields.
+      task-relevant latent variables. With ACE, we can seamlessly obtain
+      predictive distribution over variables of interest, replacing bespoke
+      techniques across different fields with a unifying framework for amortized
+      probabilistic conditioning and prediction.
     </p>
 
     <h2>Probabilistic Conditioning and Prediction</h2>
@@ -1101,7 +1106,8 @@
         sampling the latent variables $\boldsymbol{\theta}$, and then data
         points $(\mathbf{X}, \mathbf{y})$ according to the generative model of
         the task. Data and latents are randomly split between context and
-        target.
+        target. ACE requires access to latent variables during training, which
+        can be easily achieved in many generative models for synthetic data.
       </p>
       <p>
         ACE minimizes the expected negative log-likelihood of the target set
@@ -1113,6 +1119,16 @@
       \mathbf{z}_{1:M} \sim \mathbf{p}}\left[-\sum_{m=1}^{M} \log q(z_{m}^* |
       \mathbf{r}_{\mathbf{w}}(\boldsymbol{\xi}_{m}^*,
       \mathfrak{D}_{N}))\right]\right]$$
+
+      <p>
+        In this equation, $\mathbf{w}$ represents the model parameters, $q$ is
+        the model's predictive distribution (a mixture of Gaussians for
+        continuous variables or categorical for discrete variables),
+        $\mathcal{P}$ is the hierarchical model for sampling priors, and
+        $\mathbf{r}_{\mathbf{w}}$ is the transformer network that encodes the
+        context $\mathfrak{D}_{N}$ and relates it to the target inputs
+        $\boldsymbol{\xi}_{m}^*$ (which can be data, latents, or a mix of both).
+      </p>
     </div>
 
     <h2>Applications and Experimental Results</h2>
@@ -1199,7 +1215,7 @@
       the gold-standard GP-MES. When prior information about the optimum
       location is available, ACE-TS with prior (ACEP-TS) shows significant
       improvement over its no-prior variant and competitive performance compared
-      to state-of-the-art methods.
+      to state-of-the-art methods (see paper).
     </p>
 
     <img
