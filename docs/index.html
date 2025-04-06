@@ -655,6 +655,94 @@
         outline-offset: 2px;
       }
 
+      /* Architecture figure collapsible styles */
+      .architecture-details {
+        margin: 2rem 0;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+      }
+
+      .collapsible {
+        background-color: var(--light-bg);
+        color: var(--primary-color);
+        cursor: pointer;
+        padding: 1rem 1.5rem;
+        width: 100%;
+        text-align: left;
+        border: none;
+        outline: none;
+        font-size: 1.05rem;
+        font-weight: 600;
+        transition: all var(--transition-normal);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px;
+      }
+
+      .collapsible:hover, .collapsible:focus {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+      }
+
+      .collapsible:focus {
+        outline: 2px solid var(--primary-light);
+        outline-offset: 2px;
+      }
+
+      .collapsible-icon {
+        transition: transform var(--transition-normal);
+      }
+
+      .collapsible[aria-expanded="true"] .collapsible-icon {
+        transform: rotate(180deg);
+      }
+
+      .hide-text {
+        display: none;
+      }
+
+      .collapsible[aria-expanded="true"] .show-text {
+        display: none;
+      }
+
+      .collapsible[aria-expanded="true"] .hide-text {
+        display: inline;
+      }
+
+      .content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.6s ease;
+        background-color: var(--card-bg);
+      }
+
+      .arch-figure-container {
+        padding: 1.5rem;
+      }
+
+      .arch-figure-section {
+        margin-bottom: 2rem;
+      }
+
+      .arch-explanation {
+        background-color: var(--light-bg);
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-top: 1.5rem;
+      }
+
+      .arch-explanation p {
+        margin-bottom: 1rem;
+      }
+
+      .arch-explanation ul {
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+      }
+
       /* On screens wider than 768px (typical tablet/laptop breakpoint) */
       @media (min-width: 768px) {
         .responsive-img {
@@ -662,6 +750,10 @@
         }
         .responsive-img-large {
           width: 90%;
+        }
+
+        .arch-figure-container {
+          padding: 2rem;
         }
       }
     </style>
@@ -886,7 +978,6 @@
       posterior. (d) ACE's predicted posterior approximates well the true
       posterior.
     </div>
-
     <h3>Architecture</h3>
     <p>ACE consists of three main components:</p>
 
@@ -913,6 +1004,77 @@
         discrete-valued variables, it employs a categorical distribution.
       </li>
     </ol>
+
+    <div class="architecture-details">
+      <button
+        class="collapsible"
+        aria-expanded="false"
+        aria-controls="architectureFigure"
+      >
+        <span class="show-text">Show ACE Architecture Diagram</span>
+        <span class="hide-text">Hide ACE Architecture Diagram</span>
+        <svg
+          class="collapsible-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+        >
+          <path d="M12 16L6 10H18L12 16Z" fill="currentColor" />
+        </svg>
+      </button>
+      <div id="architectureFigure" class="content" aria-hidden="true">
+        <div class="arch-figure-container">
+          <div class="arch-figure-section">
+            <img
+              src="images/figureS5.png"
+              alt="ACE Architecture Diagram showing embedding layer with latent variables, attention blocks, and GMM output head"
+              class="responsive-img"
+            />
+            <div class="caption">
+              <strong>A conceptual figure of ACE architecture.</strong>
+              ACE's architecture can be summarized in the embedding layer,
+              attention layers and output head. The $(\mathbf{x}_n, y_n)$ pairs
+              denote known data (context). The red $\mathbf{x}_{j}$ denotes
+              locations where the output is unknown (target inputs). The main
+              innovation in ACE is that the embedder layer can incorporate known
+              or unknown latents $\theta_{l}$ and possibly priors over these.
+              The $z$ is the embedded data, while MHSA stands for multi head
+              cross attention and CA for cross-attention. The output head is a
+              Gaussian mixture model (GMM, for continuous variables) or
+              categorical (Cat, for discrete variables). Both latent and data
+              can be of either type.
+            </div>
+          </div>
+
+          <div class="arch-explanation">
+            <p>
+              The diagram illustrates ACE's key architectural enhancements,
+              including:
+            </p>
+            <ul>
+              <li>
+                The ability to incorporate latent variables ($\theta$) and their
+                priors in the embedder layer
+              </li>
+              <li>
+                More expressive output heads using Gaussian mixture models (GMM)
+                or categorical distributions
+              </li>
+              <li>
+                Flexible representation of both continuous and discrete data and
+                latent variables
+              </li>
+            </ul>
+            <p>
+              These modifications allow ACE to amortize distributions over both
+              data and latent variables while maintaining permutation invariance
+              for the context set.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="highlight">
       <h3>Training and Prediction</h3>
@@ -1343,6 +1505,35 @@
             }
           });
         });
+
+      // Collapsible section for architecture figure
+      const collapsible = document.querySelector(".collapsible");
+      const content = document.querySelector(".content");
+
+      if (collapsible && content) {
+        collapsible.addEventListener("click", function () {
+          const expanded = this.getAttribute("aria-expanded") === "true";
+
+          this.setAttribute("aria-expanded", !expanded);
+          content.setAttribute("aria-hidden", expanded);
+
+          if (!expanded) {
+            // Open the collapsible
+            content.style.maxHeight = content.scrollHeight + "px";
+          } else {
+            // Close the collapsible
+            content.style.maxHeight = "0";
+          }
+        });
+
+        // Handle keyboard accessibility
+        collapsible.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            collapsible.click();
+          }
+        });
+      }
     });
   </script>
 </html>
