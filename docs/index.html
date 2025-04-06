@@ -301,14 +301,14 @@
         width: 100%;
         display: block;
         margin: auto;
-        margin-bottom: 1em;
+        margin-bottom: 1.5em;
       }
 
       .responsive-img-large {
         width: 100%;
         display: block;
         margin: auto;
-        margin-bottom: 1em;
+        margin-bottom: 1.5em;
       }
 
       /* On screens wider than 768px (typical tablet/laptop breakpoint) */
@@ -382,7 +382,11 @@
           >Code</a
         >
         <a href="https://arxiv.org/abs/2410.15320" class="btn">Paper</a>
-        <a href="https://bsky.app/profile/lacerbi.bsky.social/post/3ljpc4zkyl22k" class="btn">Social</a>
+        <a
+          href="https://bsky.app/profile/lacerbi.bsky.social/post/3ljpc4zkyl22k"
+          class="btn"
+          >Social</a
+        >
       </div>
     </div>
 
@@ -400,13 +404,14 @@
       </p>
     </div>
 
+    <!-- prettier-ignore -->
     <div class="citation">
-      @article{chang2025amortized, 
-	title={Amortized Probabilistic Conditioning for Optimization, Simulation and Inference}, 
-	author={Chang, Paul E and Loka, Nasrulloh and Huang, Daolang and Remes, Ulpu and Kaski, Samuel and Acerbi, Luigi},
-	journal={28th Int. Conf. on Artificial Intelligence & Statistics (AISTATS 2025)},
-	year={2025}
-      }
+    @article{chang2025amortized, 
+      title={Amortized Probabilistic Conditioning for Optimization, Simulation and Inference}, 
+      author={Chang, Paul E and Loka, Nasrulloh and Huang, Daolang and Remes, Ulpu and Kaski, Samuel and Acerbi, Luigi},
+      journal={28th Int. Conf. on Artificial Intelligence & Statistics (AISTATS 2025)},
+      year={2025}
+    }
     </div>
 
     <h2>Introduction</h2>
@@ -439,10 +444,11 @@
       class="responsive-img"
     />
     <div class="caption">
-      Figure 1: Probabilistic conditioning and prediction. Many tasks reduce to
-      probabilistic conditioning on data and key latent variables (left) and
-      then predicting data and latents (right). (a) Image completion and
-      classification. (b) Bayesian optimization. (c) Simulator-based inference.
+      <strong>Probabilistic conditioning and prediction.</strong> Many tasks
+      reduce to probabilistic conditioning on data and key latent variables
+      (left) and then predicting data and latents (right). (a) Image completion
+      and classification. (b) Bayesian optimization. (c) Simulator-based
+      inference.
     </div>
 
     <p>
@@ -516,11 +522,12 @@
       class="responsive-img"
     />
     <div class="caption">
-      Figure 2: Prior amortization. Two example posterior distributions for the
-      mean $\mu$ and standard deviation $\sigma$ of a 1D Gaussian. (a) Prior
-      distribution over $\boldsymbol{\theta}=(\mu, \sigma)$ set at runtime. (b)
-      Likelihood for the observed data. (c) Ground-truth Bayesian posterior. (d)
-      ACE's predicted posterior approximates well the true posterior.
+      <strong>Prior amortization.</strong> Two example posterior distributions
+      for the mean $\mu$ and standard deviation $\sigma$ of a 1D Gaussian. (a)
+      Prior distribution over $\boldsymbol{\theta}=(\mu, \sigma)$ set at
+      runtime. (b) Likelihood for the observed data. (c) Ground-truth Bayesian
+      posterior. (d) ACE's predicted posterior approximates well the true
+      posterior.
     </div>
 
     <h3>Architecture</h3>
@@ -592,9 +599,9 @@
       class="responsive-img"
     />
     <div class="caption">
-      <bold>Image completion.</bold> (a) Reference image. (b) Observed pixels
-      (10%). (c-e) Predictions from different models. (f) Performance across
-      varying levels of context.
+      <strong>Image completion.</strong> (a) Reference image. (b) Observed
+      pixels (10%). (c-e) Predictions from different models. (f) Performance
+      across varying levels of context.
     </div>
 
     <p>
@@ -604,12 +611,12 @@
     </p>
     <img
       src="images/figureS9.png"
-      alt="Conditional image generation"
+      alt="Conditional image completion"
       class="responsive-img"
     />
     <div class="caption">
-      Conditional image generation. Example of ACE conditioning on the value of
-      the BALD feature when the top part of the image is masked.
+      <strong>Conditional image completion.</strong> Example of ACE conditioning
+      on the value of the BALD feature when the top part of the image is masked.
     </div>
 
     <h3>2. Bayesian Optimization (BO)</h3>
@@ -640,9 +647,9 @@
       class="responsive-img-large"
     />
     <div class="caption">
-      Bayesian Optimization example. Example evolution of ACE-TS on a 1D
-      function. The orange pdf on the left of each panel is $p(y_{\text{opt}} |
-      \mathcal{D}_N)$, the red pdf at the bottom of each panel is
+      <strong>Bayesian Optimization.</strong> Example evolution of ACE-TS on a
+      1D function. The orange pdf on the left of each panel is $p(y_{\text{opt}}
+      | \mathcal{D}_N)$, the red pdf at the bottom of each panel is
       $p(\mathbf{x}_{\text{opt}} | y_{\text{opt}}, \mathcal{D}_N)$, for a
       sampled $y_{\text{opt}}$ (orange dashed-dot line). The queried point at
       each iteration is marked with a red asterisk, while black and blue dots
@@ -665,8 +672,8 @@
       class="responsive-img-large"
     />
     <div class="caption">
-      Figure 5: Bayesian optimization results. Regret comparison for different
-      methods across benchmark tasks.
+      <strong>Bayesian optimization results.</strong> Regret comparison for
+      different methods across benchmark tasks.
     </div>
 
     <h3>3. Simulation-Based Inference (SBI)</h3>
@@ -696,8 +703,9 @@
       class="responsive-img-large"
     />
     <div class="caption">
-      Comparison metrics for SBI models. ACE shows performance comparable to
-      dedicated methods while offering additional flexibility.
+      <strong>Comparison metrics for simulator-based inference models.</strong>
+      ACE shows performance comparable to dedicated methods while offering
+      additional flexibility.
     </div>
 
     <h2>Conclusions</h2>
@@ -736,10 +744,10 @@
     <h2>References</h2>
     <ol>
       <li>
-        Marta Garnelo, Jonathan Schwarz, Dan Rosenbaum, Fabio Viola, Danilo J
-        Rezende, SM Ali Eslami, and Yee Whye Teh. Neural processes. In ICML
-        Workshop on Theoretical Foundations and Applications of Deep Generative
-        Models, 2018.
+        Marta Garnelo, Dan Rosenbaum, Chris J Maddison, Tiago Ramalho, David
+        Saxton, Murray Shanahan, Yee Whye Teh, Danilo J Rezende, and SM Ali
+        Eslami. Conditional neural processes. In International Conference on
+        Machine Learning, pages 1704-1713, 2018.
       </li>
       <li>
         Tung Nguyen and Aditya Grover. Transformer Neural Processes:
