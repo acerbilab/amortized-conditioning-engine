@@ -1,5 +1,5 @@
 /* 
- * AI Summary: Stylesheet for the ACE project page. Contains styling for the academic paper layout,
+ * AI Summary: Stylesheet for paper landing page. Contains styling for the academic paper layout,
  * responsive design elements, interactive components (lightbox, collapsible sections), and theme variables.
  */
 
@@ -654,7 +654,7 @@ footer p {
   }
 }
 
-/* Figure collapsible styles */
+/* Collapsible supplementary information styles */
 .collapsible-details {
   margin: 2rem 0;
   border: 1px solid var(--border-color);

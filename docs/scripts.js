@@ -1,6 +1,6 @@
-// AI Summary: Contains all JavaScript functionality for the ACE project page
+// AI Summary: Contains all JavaScript functionality for the paper landing page.
 // Handles citation copying, image lightbox, back-to-top navigation,
-// and collapsible sections with accessibility features
+// and collapsible sections with accessibility features.
 
 document.addEventListener("DOMContentLoaded", function () {
   // Citation copy functionality
@@ -30,8 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .filter(
           (node) =>
             node.nodeType === Node.TEXT_NODE ||
-            (node.nodeType === Node.ELEMENT_NODE &&
-              node.tagName !== "BUTTON")
+            (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "BUTTON")
         )
         .map((node) => node.textContent);
 
@@ -206,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-  // Collapsible section for architecture figure
+  // Collapsible section for supplementary details
   const collapsible = document.querySelector(".collapsible");
   const content = document.querySelector(".content");
 
