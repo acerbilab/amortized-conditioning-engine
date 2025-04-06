@@ -1,8 +1,8 @@
 # 📚 Paper in Markdown 
 
-This folder contains the research paper converted to plain text with AI-generated descriptions of figures, making it easily accessible for large language model (LLM) analysis and interactions, for both humans and machines.
+This folder contains the research paper converted to plain-text Markdown with AI-generated descriptions of figures, making it easily accessible for large language model (LLM) analysis and interactions, for both humans and machines.
 
-A full list of our papers is available [here](https://github.com/acerbilab/pubs-llms).
+A full list of our papers in Markdown is available [here](https://github.com/acerbilab/pubs-llms).
 
 ### Content
 
