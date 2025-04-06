@@ -636,6 +636,7 @@
         box-shadow: var(--shadow-md);
         pointer-events: none;
         z-index: 100;
+        -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
       }
 
       .back-to-top.visible {
@@ -654,16 +655,20 @@
         outline: 2px solid var(--primary-light);
         outline-offset: 2px;
       }
-      
-      /* Handle active state explicitly to ensure it clears properly on mobile */
-      .back-to-top:active {
-        background-color: var(--primary-dark);
+
+      /* Reset active state specifically for the back-to-top button */
+      .back-to-top-active {
+        background-color: var(--primary-dark) !important;
       }
-      
+
       /* Ensure no persistent hover effects on touch devices */
       @media (hover: none) {
-        .back-to-top:hover {
+        .back-to-top:hover, .back-to-top:active {
           background-color: var(--primary-color);
+        }
+
+        .back-to-top-active {
+          background-color: var(--primary-dark) !important;
         }
       }
 
@@ -1488,22 +1493,50 @@
       // Smooth scroll to top when clicking the button
       backToTopButton.addEventListener("click", function (e) {
         e.preventDefault();
+
+        // Add active class for visual feedback
+        this.classList.add("back-to-top-active");
+
         window.scrollTo({
           top: 0,
           behavior: "smooth",
         });
-        
-        // Remove focus to prevent persistent styling on mobile
-        this.blur();
-      });
-      
-      // Add touch event handlers for mobile devices
-      backToTopButton.addEventListener("touchend", function() {
-        // Explicitly remove any active/focus styling after touch
+
+        // Remove focus and active class after animation completes
         setTimeout(() => {
           this.blur();
-          this.classList.remove("active");
-        }, 300);
+          this.classList.remove("back-to-top-active");
+        }, 500);
+      });
+
+      // Handle touchstart for better mobile response
+      backToTopButton.addEventListener(
+        "touchstart",
+        function (e) {
+          this.classList.add("back-to-top-active");
+        },
+        { passive: true }
+      );
+
+      // Handle touchend for mobile devices
+      backToTopButton.addEventListener("touchend", function (e) {
+        e.preventDefault();
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+
+        // Reset the button state after scroll animation
+        setTimeout(() => {
+          this.blur();
+          this.classList.remove("back-to-top-active");
+        }, 500);
+      });
+
+      // Ensure the button resets if touch is canceled
+      backToTopButton.addEventListener("touchcancel", function () {
+        this.classList.remove("back-to-top-active");
       });
 
       // Smooth scrolling for all anchor links
