@@ -407,10 +407,12 @@
         background-color: var(--card-bg);
         color: var(--primary-color);
         border: 1px solid var(--border-color);
-        border-radius: 4px;
-        padding: 0.4rem 0.7rem;
-        font-size: 0.8rem;
-        font-weight: 500;
+        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
         opacity: 0.9;
         transition: all var(--transition-fast);
@@ -431,6 +433,16 @@
       .copy-btn.copied {
         background-color: var(--primary-color);
         color: white;
+      }
+
+      .copy-btn svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
       }
 
       table {
@@ -751,12 +763,12 @@
 
     <!-- prettier-ignore -->
     <div class="citation">
-@article{chang2025amortized,
-  title={Amortized Probabilistic Conditioning for Optimization, Simulation and Inference}, 
-  author={Chang, Paul E and Loka, Nasrulloh and Huang, Daolang and Remes, Ulpu and Kaski, Samuel and Acerbi, Luigi},
-  journal={28th Int. Conf. on Artificial Intelligence & Statistics (AISTATS 2025)},
-  year={2025}
-}
+    @article{chang2025amortized, 
+      title={Amortized Probabilistic Conditioning for Optimization, Simulation and Inference}, 
+      author={Chang, Paul E and Loka, Nasrulloh and Huang, Daolang and Remes, Ulpu and Kaski, Samuel and Acerbi, Luigi},
+      journal={28th Int. Conf. on Artificial Intelligence & Statistics (AISTATS 2025)},
+      year={2025}
+    }
     </div>
 
     <h2>Introduction</h2>
@@ -1173,37 +1185,72 @@
       const citations = document.querySelectorAll(".citation");
 
       citations.forEach(function (citation, index) {
-        // Create the button
+        // Create the button with Lucide clipboard icon
         const copyBtn = document.createElement("button");
         copyBtn.className = "copy-btn";
-        copyBtn.textContent = "Copy";
         copyBtn.setAttribute("aria-label", "Copy to clipboard");
+
+        // Create SVG icon (Lucide clipboard icon)
+        copyBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        `;
 
         // Add the button to the citation
         citation.appendChild(copyBtn);
 
         // Add click event to copy the content
         copyBtn.addEventListener("click", function () {
-          // Get the text content
-          const text = citation.textContent.replace("Copy", "").trim();
+          // Get the text content, making sure to ignore the SVG content
+          const textNodes = Array.from(citation.childNodes)
+            .filter(
+              (node) =>
+                node.nodeType === Node.TEXT_NODE ||
+                (node.nodeType === Node.ELEMENT_NODE &&
+                  node.tagName !== "BUTTON")
+            )
+            .map((node) => node.textContent);
+
+          const text = textNodes.join("").trim();
 
           // Copy to clipboard
           navigator.clipboard
             .writeText(text)
             .then(function () {
-              // Enhanced visual feedback
-              copyBtn.textContent = "Copied!";
+              // Enhanced visual feedback with checkmark icon
+              copyBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              `;
               copyBtn.classList.add("copied");
               setTimeout(function () {
-                copyBtn.textContent = "Copy";
+                copyBtn.innerHTML = `
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                `;
                 copyBtn.classList.remove("copied");
               }, 2000);
             })
             .catch(function (err) {
               console.error("Could not copy text: ", err);
-              copyBtn.textContent = "Failed!";
+              copyBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              `;
               setTimeout(function () {
-                copyBtn.textContent = "Copy";
+                copyBtn.innerHTML = `
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                `;
               }, 2000);
             });
         });
