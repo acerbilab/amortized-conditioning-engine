@@ -6,14 +6,15 @@ A full list of our papers in Markdown is available [here](https://github.com/ace
 
 ### Content
 
-For practical usage, the paper is available in full as well as split into three parts:
+For practical usage, the paper is available in full as well as split into multiple parts:
 
 | **Part**       | **Description**                                                                | **File**                                                                                                  |
 | -------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| **Full Text**  | Combined version with all parts in a single document.                          | [full](chang2025amortized_full.md)             |
 | **Main Text**  | The core content of the paper.                                                 | [main](chang2025amortized_main.md)             |
 | **Backmatter** | References, acknowledgments, and other auxiliary content rarely fed to an LLM. | [backmatter](chang2025amortized_backmatter.md) |
 | **Appendix**   | Supplementary materials, when available.                                       | [appendix](chang2025amortized_appendix.md)     |
-| **Full Text**  | Combined version with all parts in a single document.                          | [full](chang2025amortized_full.md)             |
+| **Overview**  | Summary of main results and key takeaways (from the paper webpage).             | [overview](chang2025amortized_overview.md)             |
 
 ### Usage Guide
 
