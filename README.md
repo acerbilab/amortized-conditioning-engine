@@ -4,6 +4,7 @@ This repository provide the implementation and code used in the AISTATS 2025 art
 
 - See the paper [web page](https://acerbilab.github.io/amortized-conditioning-engine/) for more information.
 - The full paper is available [on arXiv](https://arxiv.org/abs/2410.15320) and as [Markdown files](https://github.com/acerbilab/amortized-conditioning-engine/tree/main/docs/paper).
+- [nanoACE](https://github.com/acerbilab/nanoACE) is a small, readable implementation of ACE — try it in the interactive [playground](https://acerbilab.github.io/nanoACE/).
 
 ## Installation with Anaconda
 To install the required dependencies, run:
@@ -21,6 +22,8 @@ We provide three demo notebooks for a quick tour with examples of our method, th
 - [`3.SBI_demo.ipynb`](3.SBI_demo.ipynb): Simulation-based inference demo.
 
 Each notebook demonstrates a specific application of ACE. Simply open the notebooks in Jupyter or in GitHub to visualize the demos.
+
+For a hands-on tour with no setup, try the interactive [nanoACE playground](https://acerbilab.github.io/nanoACE/).
 
 ## Citation
 If you find this work valuable for your research, please consider citing our paper:
