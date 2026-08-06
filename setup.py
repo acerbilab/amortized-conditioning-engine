@@ -6,9 +6,9 @@ setup(
     license="",
     python_requires="~=3.10.19",
     install_requires=[
-        "torchvision==0.24.1",
-        "torch==2.9.1",
-        "torchaudio==2.9.1",
+        "torchvision==0.28.0",
+        "torch==2.13.0",
+        "torchaudio==2.11.0",
         "scikit-learn==1.5.0",
         "hydra-core==1.3.2",
         "wandb==0.16.3",
