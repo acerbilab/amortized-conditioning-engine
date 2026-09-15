@@ -10,7 +10,7 @@ setup(
         "torch==2.13.0",
         "torchaudio==2.11.0",
         "scikit-learn==1.5.0",
-        "hydra-core==1.3.2",
+        "hydra-core==1.3.7",
         "wandb==0.16.3",
         "matplotlib==3.8.0",
         "attrdict==2.0.1",
